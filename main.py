@@ -377,6 +377,10 @@ html_formulario = """
 # HTML DE CONFIRMACIÓN
 # ============================================
 
+# ============================================
+# HTML DE CONFIRMACIÓN CON MENÚ DESPLEGABLE
+# ============================================
+
 def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: str, ya_existia: bool = False):
     dominio = email.split('@')[1]
     
@@ -454,6 +458,15 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
             cursor: pointer;
             transition: transform 0.2s ease;
         }}
+        
+        /* ============================================
+           MENÚ DESPLEGABLE PARA SECCIÓN PAGO
+        ============================================ */
+        .dropdown {{
+            position: relative;
+            display: inline-block;
+        }}
+        
         .btn-payment {{
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
@@ -464,13 +477,53 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s ease;
+            width: 100%;
         }}
+        
+        .dropdown-content {{
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            border-radius: 10px;
+            z-index: 1;
+            top: 100%;
+            left: 0;
+            margin-top: 5px;
+        }}
+        
+        .dropdown-content a {{
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+            transition: background 0.2s ease;
+            border-radius: 10px;
+            cursor: pointer;
+        }}
+        
+        .dropdown-content a:hover {{
+            background-color: #f0f0f0;
+        }}
+        
+        .dropdown:hover .dropdown-content {{
+            display: block;
+        }}
+        
+        .btn-payment:hover {{
+            transform: translateY(-2px);
+        }}
+        
         .btn-validate:hover, .btn-payment:hover {{ transform: translateY(-2px); }}
-        .btn-validate:disabled, .btn-payment:disabled {{ opacity: 0.6; cursor: not-allowed; }}
+        .btn-validate:disabled, .btn-payment:disabled {{ opacity: 0.6; cursor: not-allowed; transform: none; }}
+        
         .resultado-box {{ margin-top: 20px; padding: 15px; border-radius: 10px; display: none; }}
         .resultado-success {{ background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }}
         .resultado-error {{ background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }}
         .resultado-warning {{ background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }}
+        
         .loading-spinner {{
             display: inline-block;
             width: 20px;
@@ -482,6 +535,7 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
             margin-right: 8px;
         }}
         @keyframes spin {{ to {{ transform: rotate(360deg); }} }}
+        
         .btn-back {{
             display: inline-block;
             background: #6c757d;
@@ -491,9 +545,16 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
             text-decoration: none;
             margin-top: 10px;
         }}
+        
         @media (max-width: 600px) {{
             .button-group {{ flex-direction: column; }}
-            .btn-validate, .btn-payment {{ width: 100%; }}
+            .btn-validate, .btn-payment, .dropdown {{ width: 100%; }}
+            .dropdown-content {{
+                position: relative;
+                box-shadow: none;
+                border: 1px solid #e0e0e0;
+                margin-top: 5px;
+            }}
         }}
     </style>
 </head>
@@ -521,7 +582,15 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
         
         <div class="button-group">
             <button onclick="validarDNS()" id="btnValidar" class="btn-validate">🔍 Validar DNS</button>
-            <button onclick="irPago()" id="btnPago" class="btn-payment" disabled style="opacity:0.6">💰 Sección Pago</button>
+            
+            <!-- MENÚ DESPLEGABLE -->
+            <div class="dropdown">
+                <button id="btnPago" class="btn-payment" disabled style="opacity:0.6">💰 Sección Pago ▼</button>
+                <div class="dropdown-content">
+                    <a onclick="mostrarMensaje('realizar-pago')">💳 Realizar Pago</a>
+                    <a onclick="mostrarMensaje('pago-completado')">✅ Pago Completado</a>
+                </div>
+            </div>
         </div>
         
         <div id="resultado" class="resultado-box"></div>
@@ -533,6 +602,13 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
         const codigo = "{codigo}";
         const dominio = "{dominio}";
         let verificado = false;
+        
+        // Habilitar botón de pago cuando se verifica el dominio
+        function habilitarBotonPago() {{
+            const btnPago = document.getElementById('btnPago');
+            btnPago.disabled = false;
+            btnPago.style.opacity = '1';
+        }}
         
         async function validarDNS() {{
             const btn = document.getElementById('btnValidar');
@@ -557,9 +633,7 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
                     verificado = true;
                     resultadoDiv.className = 'resultado-box resultado-success';
                     resultadoDiv.innerHTML = '✅ ' + data.mensaje;
-                    const btnPago = document.getElementById('btnPago');
-                    btnPago.disabled = false;
-                    btnPago.style.opacity = '1';
+                    habilitarBotonPago();
                 }} else {{
                     resultadoDiv.className = 'resultado-box resultado-error';
                     resultadoDiv.innerHTML = '❌ ' + data.mensaje + '<br><br>💡 Sugerencia: Espera unos minutos a que se propague el DNS y vuelve a intentar.';
@@ -573,14 +647,35 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
             }}
         }}
         
-        function irPago() {{
-            if (!verificado) {{
-                document.getElementById('resultado').style.display = 'block';
-                document.getElementById('resultado').className = 'resultado-box resultado-warning';
-                document.getElementById('resultado').innerHTML = '⚠️ Primero debes validar tu dominio con el registro TXT.';
-                return;
+        function mostrarMensaje(opcion) {{
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.style.display = 'block';
+            
+            if (opcion === 'realizar-pago') {{
+                resultadoDiv.className = 'resultado-box resultado-info';
+                resultadoDiv.innerHTML = `
+                    <strong>💰 EN DESARROLLO</strong><br><br>
+                    La pasarela de pago está en fase de integración.<br><br>
+                    <strong>Próximamente disponibles:</strong><br>
+                    • Stripe (Tarjetas de crédito/débito)<br>
+                    • PayPal<br>
+                    • Transferencia bancaria<br><br>
+                    <em>Por ahora, el pago se gestiona de forma manual.</em>
+                `;
+            }} else if (opcion === 'pago-completado') {{
+                resultadoDiv.className = 'resultado-box resultado-info';
+                resultadoDiv.innerHTML = `
+                    <strong>✅ PAGO COMPLETADO</strong><br><br>
+                    Gracias por tu pago.<br>
+                    Recibirás un email de confirmación en las próximas horas.<br><br>
+                    <em>⚠️ En desarrollo: Esta opción enviará una notificación automática.</em>
+                `;
             }}
-            window.location.href = '/pago/' + encodeURIComponent(codigo);
+            
+            // Desaparecer después de 5 segundos
+            setTimeout(() => {{
+                resultadoDiv.style.display = 'none';
+            }}, 5000);
         }}
     </script>
 </body>
@@ -686,6 +781,7 @@ async def pagina_pago(codigo: str):
     <html>
     <head>
         <title>Pago - klbrs.es</title>
+        <meta charset="UTF-8">
         <style>
             * {{ margin: 0; padding: 0; box-sizing: border-box; }}
             body {{
@@ -701,11 +797,17 @@ async def pagina_pago(codigo: str):
                 background: white;
                 border-radius: 20px;
                 padding: 40px;
-                max-width: 500px;
+                max-width: 550px;
                 width: 100%;
                 text-align: center;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             }}
-            .monto {{ font-size: 48px; color: #28a745; font-weight: bold; margin: 20px 0; }}
+            .monto {{
+                font-size: 48px;
+                color: #28a745;
+                font-weight: bold;
+                margin: 20px 0;
+            }}
             .codigo {{
                 background: #2d3748;
                 color: #68d391;
@@ -714,57 +816,319 @@ async def pagina_pago(codigo: str):
                 border-radius: 8px;
                 margin: 20px 0;
                 word-break: break-all;
+                font-size: 14px;
             }}
-            button {{
+            .button-group {{
+                display: flex;
+                gap: 15px;
+                margin: 25px 0;
+                flex-wrap: wrap;
+                justify-content: center;
+            }}
+            .btn-pagar {{
                 background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
                 color: white;
-                padding: 14px 30px;
+                padding: 14px 24px;
                 border: none;
                 border-radius: 10px;
-                font-size: 18px;
+                font-size: 16px;
+                font-weight: 600;
                 cursor: pointer;
-                width: 100%;
+                transition: transform 0.2s ease;
+                flex: 1;
+                min-width: 180px;
+            }}
+            .btn-completado {{
+                background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+                color: white;
+                padding: 14px 24px;
+                border: none;
+                border-radius: 10px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: transform 0.2s ease;
+                flex: 1;
+                min-width: 180px;
             }}
             .btn-back {{
                 background: #6c757d;
-                display: inline-block;
+                color: white;
+                padding: 12px 24px;
+                border: none;
+                border-radius: 10px;
                 text-decoration: none;
+                display: inline-block;
                 margin-top: 10px;
+            }}
+            .btn-pagar:hover, .btn-completado:hover {{ transform: translateY(-2px); }}
+            .btn-pagar:disabled, .btn-completado:disabled {{ opacity: 0.6; cursor: not-allowed; transform: none; }}
+            .resultado-box {{
+                margin-top: 20px;
+                padding: 15px;
+                border-radius: 10px;
+                display: none;
+            }}
+            .resultado-success {{
+                background: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }}
+            .resultado-warning {{
+                background: #fff3cd;
+                color: #856404;
+                border: 1px solid #ffeeba;
+            }}
+            .resultado-info {{
+                background: #d1ecf1;
+                color: #0c5460;
+                border: 1px solid #bee5eb;
+            }}
+            .loading-spinner {{
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                border: 3px solid rgba(255,255,255,0.3);
+                border-radius: 50%;
+                border-top-color: white;
+                animation: spin 0.8s linear infinite;
+                margin-right: 8px;
+                vertical-align: middle;
+            }}
+            @keyframes spin {{ to {{ transform: rotate(360deg); }} }}
+            .tiempo-restante {{
+                font-size: 14px;
+                color: #666;
+                margin-top: 10px;
+            }}
+            hr {{
+                margin: 20px 0;
+                border: none;
+                border-top: 1px solid #e0e0e0;
+            }}
+            .badge {{
+                display: inline-block;
+                background: #ffc107;
+                color: #856404;
+                padding: 5px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                margin-bottom: 15px;
             }}
         </style>
     </head>
     <body>
         <div class="container">
+            <div class="badge">💰 MODO DESARROLLO - PAGO SIMULADO</div>
             <h1>💰 Sección de Pago</h1>
             <p>Dominio verificado correctamente ✅</p>
+            
             <div class="monto">$50 USD</div>
-            <div class="codigo"><strong>Código:</strong><br>{codigo}</div>
+            
+            <div class="codigo">
+                <strong>Código de referencia:</strong><br>
+                {codigo}
+            </div>
+            
             <h3>Datos para transferencia</h3>
-            <p>Banco: [TU BANCO]<br>Cuenta: [TU CUENTA]<br>Concepto: <strong>{codigo}</strong></p>
-            <button onclick="notificarPago()">✅ Ya realicé el pago</button>
-            <a href="/" class="btn-back">← Volver</a>
-            <div id="resultado" style="margin-top: 20px;"></div>
+            <p>
+                Banco: [TU BANCO]<br>
+                Cuenta: [TU CUENTA]<br>
+                Titular: [TU NOMBRE]<br>
+                Concepto: <strong>{codigo}</strong>
+            </p>
+            
+            <hr>
+            
+            <h3>Opciones de pago</h3>
+            <div class="button-group">
+                <button onclick="realizarPago()" id="btnPagar" class="btn-pagar">
+                    💳 Realizar Pago
+                </button>
+                <button onclick="simularPagoCompletado()" id="btnCompletado" class="btn-completado">
+                    ✅ Pago Completado
+                </button>
+            </div>
+            
+            <div id="resultado" class="resultado-box"></div>
+            
+            <a href="/" class="btn-back">← Volver al inicio</a>
         </div>
+        
         <script>
-            async function notificarPago() {{
-                const btn = event.target;
-                btn.disabled = true;
-                btn.textContent = 'Enviando...';
+            const codigo = "{codigo}";
+            let temporizadorActivo = false;
+            let intervalId = null;
+            let tiempoRestante = 0;
+            
+            function mostrarResultado(tipo, mensaje) {{
+                const resultadoDiv = document.getElementById('resultado');
+                resultadoDiv.style.display = 'block';
+                resultadoDiv.className = 'resultado-box resultado-' + tipo;
+                resultadoDiv.innerHTML = mensaje;
+            }}
+            
+            function limpiarTemporizador() {{
+                if (intervalId) {{
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }}
+                temporizadorActivo = false;
+            }}
+            
+            async function realizarPago() {{
+                const btnPagar = document.getElementById('btnPagar');
+                const btnCompletado = document.getElementById('btnCompletado');
+                
+                btnPagar.disabled = true;
+                btnPagar.innerHTML = '<span class="loading-spinner"></span> Redirigiendo a pasarela de pago...';
+                
+                // Simular redirección a pasarela de pago
+                mostrarResultado('info', '🔄 Redirigiendo a la pasarela de pago... (Modo desarrollo - API de pago no integrada aún)');
+                
+                setTimeout(() => {{
+                    mostrarResultado('info', `
+                        <strong>💰 EN DESARROLLO</strong><br><br>
+                        La integración con pasarelas de pago (Stripe, MercadoPago, PayPal) está en fase beta.<br><br>
+                        Por ahora, usa el botón <strong>"Pago Completado"</strong> para simular el proceso.<br><br>
+                        <strong>Para producción se integrará:</strong><br>
+                        • Stripe - Tarjetas de crédito/débito<br>
+                        • PayPal - Cuentas PayPal<br>
+                        • Transferencia bancaria (actual)
+                    `);
+                    btnPagar.disabled = false;
+                    btnPagar.innerHTML = '💳 Realizar Pago';
+                }}, 2000);
+            }}
+            
+            async function simularPagoCompletado() {{
+                if (temporizadorActivo) {{
+                    mostrarResultado('warning', '⚠️ Ya hay una simulación de pago en proceso. Espera a que termine.');
+                    return;
+                }}
+                
+                const btnCompletado = document.getElementById('btnCompletado');
+                const btnPagar = document.getElementById('btnPagar');
+                
+                // Simular espera de 2 segundos (en producción serán 5 minutos)
+                tiempoRestante = 2;
+                temporizadorActivo = true;
+                
+                btnCompletado.disabled = true;
+                btnPagar.disabled = true;
+                
+                mostrarResultado('info', `
+                    <strong>🔄 Verificando pago...</strong><br><br>
+                    Simulando confirmación de pago...<br>
+                    ⏱️ Tiempo restante: <span id="contador">2</span> segundos
+                `);
+                
+                // Actualizar contador cada segundo
+                intervalId = setInterval(() => {{
+                    tiempoRestante--;
+                    const contadorSpan = document.getElementById('contador');
+                    if (contadorSpan) {{
+                        contadorSpan.textContent = tiempoRestante;
+                    }}
+                    
+                    if (tiempoRestante <= 0) {{
+                        clearInterval(intervalId);
+                        intervalId = null;
+                        
+                        // Finalizar simulación y enviar notificación
+                        finalizarPagoConfirmado();
+                    }}
+                }}, 1000);
+            }}
+            
+            async function finalizarPagoConfirmado() {{
+                const resultadoDiv = document.getElementById('resultado');
+                const btnCompletado = document.getElementById('btnCompletado');
+                const btnPagar = document.getElementById('btnPagar');
+                
+                // Mostrar mensaje de procesando notificación
+                resultadoDiv.className = 'resultado-box resultado-info';
+                resultadoDiv.innerHTML = '<span class="loading-spinner"></span> Enviando notificación de pago...';
+                
                 try {{
+                    // Enviar notificación al webhook
                     const response = await fetch('/webhook-pago', {{
                         method: 'POST',
                         headers: {{ 'Content-Type': 'application/json' }},
-                        body: JSON.stringify({{ codigo: '{codigo}' }})
+                        body: JSON.stringify({{ codigo: codigo }})
                     }});
+                    
                     const data = await response.json();
-                    document.getElementById('resultado').innerHTML = data.exitoso 
-                        ? '<p style="color:green;">✅ ' + data.mensaje + '</p>'
-                        : '<p style="color:red;">❌ ' + data.mensaje + '</p>';
+                    
+                    if (data.exitoso) {{
+                        mostrarResultado('success', `
+                            <strong>✅ ¡PAGO CONFIRMADO!</strong><br><br>
+                            ${data.mensaje}<br><br>
+                            📧 Se ha enviado una notificación al administrador.<br>
+                            📱 Recibirás confirmación por email y WhatsApp.<br><br>
+                            <strong>Gracias por confiar en klbrs.es</strong>
+                        `);
+                        
+                        // Deshabilitar botones permanentemente
+                        btnCompletado.disabled = true;
+                        btnPagar.disabled = true;
+                        btnCompletado.style.opacity = '0.5';
+                        btnPagar.style.opacity = '0.5';
+                        
+                        // Mostrar confeti o celebración visual
+                        mostrarCelebracion();
+                    }} else {{
+                        mostrarResultado('warning', `
+                            <strong>⚠️ Error en la notificación</strong><br><br>
+                            ${data.mensaje}<br><br>
+                            Por favor, contacta con soporte.
+                        `);
+                        btnCompletado.disabled = false;
+                        btnPagar.disabled = false;
+                    }}
                 }} catch (error) {{
-                    document.getElementById('resultado').innerHTML = '<p style="color:red;">❌ Error</p>';
+                    mostrarResultado('warning', `
+                        <strong>⚠️ Error de conexión</strong><br><br>
+                        No se pudo enviar la notificación de pago.<br>
+                        Intenta nuevamente.
+                    `);
+                    btnCompletado.disabled = false;
+                    btnPagar.disabled = false;
+                }} finally {{
+                    temporizadorActivo = false;
+                    if (intervalId) clearInterval(intervalId);
+                    intervalId = null;
                 }}
-                btn.disabled = false;
-                btn.textContent = 'Reintentar';
+            }}
+            
+            function mostrarCelebracion() {{
+                // Efecto visual simple de celebración
+                const colores = ['#28a745', '#20c997', '#17a2b8', '#ffc107'];
+                for (let i = 0; i < 20; i++) {{
+                    setTimeout(() => {{
+                        const div = document.createElement('div');
+                        div.style.position = 'fixed';
+                        div.style.width = '10px';
+                        div.style.height = '10px';
+                        div.style.backgroundColor = colores[Math.floor(Math.random() * colores.length)];
+                        div.style.borderRadius = '50%';
+                        div.style.left = Math.random() * window.innerWidth + 'px';
+                        div.style.top = '-10px';
+                        div.style.pointerEvents = 'none';
+                        div.style.zIndex = '9999';
+                        div.style.transition = 'all 1s ease-out';
+                        document.body.appendChild(div);
+                        
+                        setTimeout(() => {{
+                            div.style.top = window.innerHeight + 'px';
+                            div.style.opacity = '0';
+                        }}, 10);
+                        
+                        setTimeout(() => {{
+                            div.remove();
+                        }}, 1100);
+                    }}, i * 50);
+                }}
             }}
         </script>
     </body>
@@ -796,19 +1160,31 @@ async def webhook_pago(request: Request):
     if not usuario_encontrado:
         return {"exitoso": False, "mensaje": "Código no encontrado"}
     
+    # Verificar si ya estaba pagado
+    if usuario_encontrado.get("pagado", False):
+        return {"exitoso": True, "mensaje": "Este pago ya había sido confirmado anteriormente"}
+    
+    # Marcar como pagado
     pendientes[email_encontrado]["pagado"] = True
     pendientes[email_encontrado]["fecha_pago"] = datetime.now().isoformat()
     
     with open(ARCHIVO_PENDIENTES, "w") as f:
         json.dump(pendientes, f, indent=2, ensure_ascii=False)
     
+    # Guardar en archivo de pagos
     with open("pagos_registrados.txt", "a", encoding="utf-8") as f:
         f.write(f"{datetime.now().isoformat()} | {email_encontrado} | {usuario_encontrado['nombre']} | {usuario_encontrado['apellido']} | CODIGO: {codigo} | MONTO: ${monto}\n")
     
     logger.info(f"💰 Pago registrado: {email_encontrado} - ${monto}")
     
-    return {"exitoso": True, "mensaje": f"Pago notificado correctamente. Monto: ${monto}"}
-
+    # Aquí puedes agregar notificaciones por WhatsApp o Telegram
+    # enviar_notificacion_whatsapp(usuario_encontrado, codigo, monto)
+    # enviar_notificacion_telegram(usuario_encontrado, codigo, monto)
+    
+    return {
+        "exitoso": True, 
+        "mensaje": f"Pago confirmado correctamente. Monto: ${monto}. Recibirás confirmación en tu email."
+    }
 
 if __name__ == "__main__":
     import uvicorn
