@@ -1,24 +1,6 @@
-# Entorno virtual
-venv/
-__pycache__/
-*.pyc
-
-# Archivos de configuración sensibles
 .env
-.env.local
-.env.production
-
-# Archivos de datos locales
-registros.txt
-verificaciones.json
-pendientes_verificacion.json
-simulacion_emails.txt
-codigos_generados.txt
-
-# IDE
-.vscode/
-.idea/
-*.swp
-
-# Logs
-*.log
+__pycache__/
+*.json
+*.txt
+*.html
+*.db
