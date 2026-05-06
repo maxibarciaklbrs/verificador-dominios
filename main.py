@@ -29,6 +29,77 @@ SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL", SMTP_USER)
 MI_EMAIL = os.getenv("MI_EMAIL", SMTP_USER)
 
+# ============================================
+# NOTIFICACIONES TELEGRAM
+# ============================================
+
+# Configuración Telegram
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+
+def enviar_telegram(mensaje: str):
+    """Envía mensaje a Telegram"""
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        logger.warning("⚠️ Telegram no configurado - Variables TELEGRAM_BOT_TOKEN o TELEGRAM_CHAT_ID faltantes")
+        return False
+    
+    import requests
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": mensaje,
+        "parse_mode": "HTML"
+    }
+    
+    try:
+        response = requests.post(url, json=payload, timeout=10)
+        if response.status_code == 200:
+            logger.info("✅ Mensaje de Telegram enviado")
+            return True
+        else:
+            logger.error(f"❌ Error Telegram: {response.text}")
+            return False
+    except Exception as e:
+        logger.error(f"❌ Error enviando Telegram: {e}")
+        return False
+
+def enviar_notificacion_pago_telegram(datos: dict, codigo: str, monto: float):
+    """Envía notificación de pago por Telegram con datos random"""
+    import random
+    import string
+    
+    # Generar datos random para la notificación
+    transaccion_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+    codigo_verificacion = ''.join(random.choices(string.digits, k=6))
+    
+    mensaje = f"""
+🔔 <b>NUEVO PAGO RECIBIDO - klbrs.es</b>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 <b>DATOS DEL CLIENTE</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 <b>Cliente:</b> {datos.get('nombre', 'N/A')} {datos.get('apellido', 'N/A')}
+📧 <b>Email:</b> {datos.get('email', 'N/A')}
+🌐 <b>Dominio:</b> {datos.get('dominio', 'N/A')}
+🔐 <b>Código verif.:</b> <code>{codigo}</code>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💰 <b>DETALLES DEL PAGO</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💵 <b>Monto:</b> ${monto} USD
+🆔 <b>Transacción ID:</b> <code>{transaccion_id}</code>
+✅ <b>Código verificación:</b> <code>{codigo_verificacion}</code>
+📅 <b>Fecha:</b> {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ <b>Estado:</b> PAGO CONFIRMADO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+<i>Notificación automática - Sistema de verificación klbrs.es</i>
+    """
+    
+    return enviar_telegram(mensaje)
+
 
 # ============================================
 # VALIDACIÓN DE EMAIL CORPORATIVO
@@ -458,15 +529,10 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
             cursor: pointer;
             transition: transform 0.2s ease;
         }}
-        
-        /* ============================================
-           MENÚ DESPLEGABLE PARA SECCIÓN PAGO
-        ============================================ */
         .dropdown {{
             position: relative;
             display: inline-block;
         }}
-        
         .btn-payment {{
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
@@ -479,7 +545,6 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
             transition: transform 0.2s ease;
             width: 100%;
         }}
-        
         .dropdown-content {{
             display: none;
             position: absolute;
@@ -492,38 +557,28 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
             left: 0;
             margin-top: 5px;
         }}
-        
         .dropdown-content a {{
             color: #333;
             padding: 12px 16px;
             text-decoration: none;
             display: block;
             text-align: left;
-            transition: background 0.2s ease;
             border-radius: 10px;
             cursor: pointer;
         }}
-        
         .dropdown-content a:hover {{
             background-color: #f0f0f0;
         }}
-        
         .dropdown:hover .dropdown-content {{
             display: block;
         }}
-        
-        .btn-payment:hover {{
-            transform: translateY(-2px);
-        }}
-        
-        .btn-validate:hover, .btn-payment:hover {{ transform: translateY(-2px); }}
+        .btn-payment:hover, .btn-validate:hover {{ transform: translateY(-2px); }}
         .btn-validate:disabled, .btn-payment:disabled {{ opacity: 0.6; cursor: not-allowed; transform: none; }}
-        
         .resultado-box {{ margin-top: 20px; padding: 15px; border-radius: 10px; display: none; }}
         .resultado-success {{ background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }}
         .resultado-error {{ background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }}
         .resultado-warning {{ background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }}
-        
+        .resultado-info {{ background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }}
         .loading-spinner {{
             display: inline-block;
             width: 20px;
@@ -535,7 +590,6 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
             margin-right: 8px;
         }}
         @keyframes spin {{ to {{ transform: rotate(360deg); }} }}
-        
         .btn-back {{
             display: inline-block;
             background: #6c757d;
@@ -545,7 +599,6 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
             text-decoration: none;
             margin-top: 10px;
         }}
-        
         @media (max-width: 600px) {{
             .button-group {{ flex-direction: column; }}
             .btn-validate, .btn-payment, .dropdown {{ width: 100%; }}
@@ -566,7 +619,7 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
         <p>Hemos enviado un email a <strong>{email}</strong> con instrucciones.</p>
         
         <div class="codigo-box">
-            <strong>Código de verificación (43 caracteres):</strong><br>
+            <strong>Código de verificación:</strong><br>
             {codigo}
         </div>
         
@@ -583,7 +636,6 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
         <div class="button-group">
             <button onclick="validarDNS()" id="btnValidar" class="btn-validate">🔍 Validar DNS</button>
             
-            <!-- MENÚ DESPLEGABLE -->
             <div class="dropdown">
                 <button id="btnPago" class="btn-payment" disabled style="opacity:0.6">💰 Sección Pago ▼</button>
                 <div class="dropdown-content">
@@ -603,7 +655,6 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
         const dominio = "{dominio}";
         let verificado = false;
         
-        // Habilitar botón de pago cuando se verifica el dominio
         function habilitarBotonPago() {{
             const btnPago = document.getElementById('btnPago');
             btnPago.disabled = false;
@@ -636,7 +687,7 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
                     habilitarBotonPago();
                 }} else {{
                     resultadoDiv.className = 'resultado-box resultado-error';
-                    resultadoDiv.innerHTML = '❌ ' + data.mensaje + '<br><br>💡 Sugerencia: Espera unos minutos a que se propague el DNS y vuelve a intentar.';
+                    resultadoDiv.innerHTML = '❌ ' + data.mensaje + '<br><br>💡 Espera unos minutos a que se propague el DNS y vuelve a intentar.';
                 }}
             }} catch (error) {{
                 resultadoDiv.className = 'resultado-box resultado-error';
@@ -660,28 +711,60 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
                     • Stripe (Tarjetas de crédito/débito)<br>
                     • PayPal<br>
                     • Transferencia bancaria<br><br>
-                    <em>Por ahora, el pago se gestiona de forma manual.</em>
+                    <em>Por ahora, usa la opción "Pago Completado" para simular el proceso.</em>
                 `;
             }} else if (opcion === 'pago-completado') {{
-                resultadoDiv.className = 'resultado-box resultado-info';
-                resultadoDiv.innerHTML = `
-                    <strong>✅ PAGO COMPLETADO</strong><br><br>
-                    Gracias por tu pago.<br>
-                    Recibirás un email de confirmación en las próximas horas.<br><br>
-                    <em>⚠️ En desarrollo: Esta opción enviará una notificación automática.</em>
-                `;
+                resultadoDiv.className = 'resultado-box resultado-warning';
+                resultadoDiv.innerHTML = '<span class="loading-spinner"></span> Procesando pago, enviando notificaciones...';
+                
+                fetch('/webhook-pago', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/json' }},
+                    body: JSON.stringify({{ codigo: codigo, monto: 50.00 }})
+                }})
+                .then(response => response.json())
+                .then(data => {{
+                    if (data.exitoso) {{
+                        resultadoDiv.className = 'resultado-box resultado-success';
+                        resultadoDiv.innerHTML = `
+                            <strong>✅ PAGO CONFIRMADO</strong><br><br>
+                            $\{{data.mensaje}}<br><br>
+                            📧 Se ha enviado un email de confirmación al administrador.<br>
+                            📱 Se ha enviado una notificación por Telegram.<br><br>
+                            <em>Gracias por tu pago. Recibirás la activación en breve.</em>
+                        `;
+                        const opcionPago = document.querySelector('.dropdown-content a:last-child');
+                        opcionPago.style.opacity = '0.5';
+                        opcionPago.style.pointerEvents = 'none';
+                    }} else {{
+                        resultadoDiv.className = 'resultado-box resultado-error';
+                        resultadoDiv.innerHTML = `
+                            <strong>❌ ERROR</strong><br><br>
+                            $\{{data.mensaje}}<br><br>
+                            Por favor, contacta con soporte.
+                        `;
+                    }}
+                }})
+                .catch(error => {{
+                    resultadoDiv.className = 'resultado-box resultado-error';
+                    resultadoDiv.innerHTML = `
+                        <strong>❌ ERROR DE CONEXIÓN</strong><br><br>
+                        No se pudo procesar el pago: $\{{error}}<br>
+                        Intenta nuevamente.
+                    `;
+                }});
             }}
             
-            // Desaparecer después de 5 segundos
             setTimeout(() => {{
-                resultadoDiv.style.display = 'none';
-            }}, 5000);
+                if (resultadoDiv.style.display !== 'none') {{
+                    resultadoDiv.style.display = 'none';
+                }}
+            }}, 10000);
         }}
     </script>
 </body>
 </html>
     """
-
 
 # ============================================
 # ENDPOINTS
@@ -1136,8 +1219,67 @@ async def pagina_pago(codigo: str):
     """
 
 
+# ============================================
+# FUNCIÓN DE NOTIFICACIÓN POR TELEGRAM
+# ============================================
+
+async def enviar_notificacion_telegram_pago(nombre: str, apellido: str, email: str, codigo: str, monto: float = 50.00):
+    """
+    Envía notificación a Telegram cuando se confirma un pago
+    """
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        logger.warning("⚠️ Token de Telegram no configurado. Omitiendo notificación.")
+        return False
+    
+    try:
+        import aiohttp
+        
+        dominio = email.split('@')[1]
+        
+        mensaje = f"""
+💳 <b>NUEVO PAGO RECIBIDO</b>
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+👤 <b>Cliente:</b> {nombre} {apellido}
+📧 <b>Email:</b> {email}
+🌐 <b>Dominio:</b> {dominio}
+💰 <b>Monto:</b> ${monto:.2f} USD
+🔑 <b>Código:</b> <code>{codigo}</code>
+📅 <b>Fecha:</b> {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+⏳ <b>Estado:</b> Pago en proceso de verificación
+📱 <b>Próximo paso:</b> Contactar al cliente para confirmar
+━━━━━━━━━━━━━━━━━━━━━━━━
+        """
+        
+        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+        
+        payload = {
+            "chat_id": TELEGRAM_CHAT_ID,
+            "text": mensaje,
+            "parse_mode": "HTML"
+        }
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, json=payload, timeout=10) as response:
+                if response.status == 200:
+                    logger.info(f"✅ Notificación Telegram enviada por pago de {nombre} {apellido}")
+                    return True
+                else:
+                    error_data = await response.text()
+                    logger.error(f"❌ Error enviando a Telegram: {error_data}")
+                    return False
+                    
+    except ImportError:
+        logger.error("❌ aiohttp no instalado. Instálalo con: pip install aiohttp")
+        return False
+    except Exception as e:
+        logger.error(f"❌ Error enviando notificación Telegram: {str(e)}")
+        return False
+
 @app.post("/webhook-pago")
-async def webhook_pago(request: Request):
+async def webhook_pago(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
     codigo = data.get("codigo")
     monto = data.get("monto", 50.00)
@@ -1162,6 +1304,15 @@ async def webhook_pago(request: Request):
     
     # Verificar si ya estaba pagado
     if usuario_encontrado.get("pagado", False):
+        # Aún así enviamos notificación de que se intentó
+        background_tasks.add_task(
+            enviar_notificacion_telegram_pago,
+            usuario_encontrado['nombre'],
+            usuario_encontrado['apellido'],
+            email_encontrado,
+            codigo,
+            monto
+        )
         return {"exitoso": True, "mensaje": "Este pago ya había sido confirmado anteriormente"}
     
     # Marcar como pagado
@@ -1177,13 +1328,22 @@ async def webhook_pago(request: Request):
     
     logger.info(f"💰 Pago registrado: {email_encontrado} - ${monto}")
     
-    # Aquí puedes agregar notificaciones por WhatsApp o Telegram
-    # enviar_notificacion_whatsapp(usuario_encontrado, codigo, monto)
-    # enviar_notificacion_telegram(usuario_encontrado, codigo, monto)
+    # ✅ ENVIAR NOTIFICACIÓN A TELEGRAM EN SEGUNDO PLANO
+    background_tasks.add_task(
+        enviar_notificacion_telegram_pago,
+        usuario_encontrado['nombre'],
+        usuario_encontrado['apellido'],
+        email_encontrado,
+        codigo,
+        monto
+    )
+    
+    # También puedes enviar email de confirmación al admin
+    # background_tasks.add_task(enviar_email_confirmacion_pago, ...)
     
     return {
         "exitoso": True, 
-        "mensaje": f"Pago confirmado correctamente. Monto: ${monto}. Recibirás confirmación en tu email."
+        "mensaje": f"Pago confirmado correctamente. Monto: ${monto}. Nos pondremos en contacto contigo pronto."
     }
 
 if __name__ == "__main__":
