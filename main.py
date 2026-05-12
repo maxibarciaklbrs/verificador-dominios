@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Form, BackgroundTasks, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 import smtplib
 from email.message import EmailMessage
 import os
@@ -11,6 +11,7 @@ import string
 import json
 import subprocess
 import re
+import asyncio
 
 # Cargar variables de entorno
 load_dotenv()
@@ -21,7 +22,11 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-# Configuración SMTP
+# ============================================
+# CONFIGURACIONES
+# ============================================
+
+# SMTP
 SMTP_HOST = os.getenv("SMTP_HOST", "reseller2.networksclub.net")
 SMTP_PORT = int(os.getenv("SMTP_PORT", 465))
 SMTP_USER = os.getenv("SMTP_USER", "")
@@ -29,18 +34,25 @@ SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL", SMTP_USER)
 MI_EMAIL = os.getenv("MI_EMAIL", SMTP_USER)
 
+# Telegram
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+
+# Archivos
+ARCHIVO_PENDIENTES = "pendientes_verificacion.json"
+DIRECTORIO_REPORTES = "reportes"
+
+# Crear directorio de reportes
+os.makedirs(DIRECTORIO_REPORTES, exist_ok=True)
+
 # ============================================
 # NOTIFICACIONES TELEGRAM
 # ============================================
 
-# Configuración Telegram
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
-
 def enviar_telegram(mensaje: str):
     """Envía mensaje a Telegram"""
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        logger.warning("⚠️ Telegram no configurado - Variables TELEGRAM_BOT_TOKEN o TELEGRAM_CHAT_ID faltantes")
+        logger.warning("⚠️ Telegram no configurado")
         return False
     
     import requests
@@ -63,12 +75,11 @@ def enviar_telegram(mensaje: str):
         logger.error(f"❌ Error enviando Telegram: {e}")
         return False
 
+
 def enviar_notificacion_pago_telegram(datos: dict, codigo: str, monto: float):
-    """Envía notificación de pago por Telegram con datos random"""
+    """Envía notificación de pago por Telegram"""
     import random
-    import string
     
-    # Generar datos random para la notificación
     transaccion_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
     codigo_verificacion = ''.join(random.choices(string.digits, k=6))
     
@@ -95,7 +106,7 @@ def enviar_notificacion_pago_telegram(datos: dict, codigo: str, monto: float):
 ✅ <b>Estado:</b> PAGO CONFIRMADO
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-<i>Notificación automática - Sistema de verificación klbrs.es</i>
+<i>Notificación automática - Sistema klbrs.es</i>
     """
     
     return enviar_telegram(mensaje)
@@ -110,7 +121,6 @@ def email_es_corporativo(email: str):
     if '@' not in email:
         return False, "Email inválido"
     
-    # Lista básica de dominios gratuitos
     dominios_gratuitos = [
         'gmail.com', 'googlemail.com', 'hotmail.com', 'outlook.com',
         'live.com', 'msn.com', 'yahoo.com', 'ymail.com', 'rocketmail.com',
@@ -161,7 +171,7 @@ def verificar_dns_txt(dominio: str, codigo: str) -> dict:
                 
                 if codigo in txt_value:
                     resultado["existe"] = True
-                    resultado["detalle"] = f"Código encontrado en registro TXT"
+                    resultado["detalle"] = "Código encontrado en registro TXT"
                     return resultado
             
             resultado["detalle"] = "Código NO encontrado en ningún registro TXT"
@@ -174,7 +184,7 @@ def verificar_dns_txt(dominio: str, codigo: str) -> dict:
         resultado["detalle"] = "Timeout - El comando dig no respondió"
         return resultado
     except FileNotFoundError:
-        resultado["detalle"] = "Comando 'dig' no instalado. Instala: sudo apt install dnsutils"
+        resultado["detalle"] = "Comando 'dig' no instalado"
         return resultado
     except Exception as e:
         resultado["detalle"] = f"Error: {str(e)}"
@@ -195,28 +205,17 @@ def generar_codigo_verificacion(longitud: int = 43) -> str:
 # GESTIÓN DE VERIFICACIONES PENDIENTES
 # ============================================
 
-# ============================================
-# GESTIÓN DE VERIFICACIONES PENDIENTES
-# ============================================
-
-ARCHIVO_PENDIENTES = "pendientes_verificacion.json"
-
 def guardar_o_obtener_codigo(email: str, nombre: str, apellido: str):
-    """
-    Devuelve el código existente o crea uno nuevo si no existe
-    Retorna: (codigo, es_nuevo)
-    """
+    """Devuelve el código existente o crea uno nuevo si no existe"""
     pendientes = {}
     if os.path.exists(ARCHIVO_PENDIENTES):
         with open(ARCHIVO_PENDIENTES, "r", encoding="utf-8") as f:
             pendientes = json.load(f)
     
-    # Si el email YA EXISTE, devolver el código existente
     if email in pendientes:
-        logger.info(f"📧 Email {email} ya existe. Usando código existente: {pendientes[email]['codigo']}")
-        return pendientes[email]["codigo"], False  # False = no es nuevo
+        logger.info(f"📧 Email {email} ya existe. Usando código existente")
+        return pendientes[email]["codigo"], False
     
-    # Si es NUEVO, crear código
     codigo = generar_codigo_verificacion()
     pendientes[email] = {
         "codigo": codigo,
@@ -232,11 +231,12 @@ def guardar_o_obtener_codigo(email: str, nombre: str, apellido: str):
     with open(ARCHIVO_PENDIENTES, "w", encoding="utf-8") as f:
         json.dump(pendientes, f, indent=2, ensure_ascii=False)
     
-    logger.info(f"🆕 Nuevo código creado para {email}: {codigo}")
-    return codigo, True  # True = es nuevo
+    logger.info(f"🆕 Nuevo código creado para {email}")
+    return codigo, True
+
 
 # ============================================
-# FUNCIÓN DE ENVÍO DE EMAIL CON CÓDIGO
+# FUNCIONES DE ENVÍO DE EMAIL
 # ============================================
 
 def enviar_email_verificacion(nombre: str, apellido: str, email_usuario: str, codigo: str):
@@ -341,6 +341,7 @@ Expira en 7 días.
         logger.error(f"Error enviando email al admin: {str(e)}")
         return False
 
+
 # ============================================
 # HTML DEL FORMULARIO
 # ============================================
@@ -351,7 +352,7 @@ html_formulario = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro Corporativo</title>
+    <title>Registro Corporativo - klbrs.es</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -445,11 +446,7 @@ html_formulario = """
 
 
 # ============================================
-# HTML DE CONFIRMACIÓN
-# ============================================
-
-# ============================================
-# HTML DE CONFIRMACIÓN CON MENÚ DESPLEGABLE
+# HTML DE CONFIRMACIÓN CON AUDITORÍA
 # ============================================
 
 def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: str, ya_existia: bool = False):
@@ -469,7 +466,7 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificación DNS TXT</title>
+    <title>Verificación DNS TXT - klbrs.es</title>
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{
@@ -485,13 +482,14 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
             background: white;
             border-radius: 20px;
             padding: 40px;
-            max-width: 600px;
+            max-width: 650px;
             width: 100%;
             text-align: center;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }}
         .success-icon {{ font-size: 80px; color: #28a745; margin-bottom: 20px; }}
         h1 {{ color: #333; margin-bottom: 10px; }}
+        h3 {{ color: #4a5568; margin-bottom: 10px; }}
         p {{ color: #666; margin-bottom: 20px; line-height: 1.6; }}
         .info-box {{
             background: #f0f7ff;
@@ -572,7 +570,7 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
         .dropdown:hover .dropdown-content {{
             display: block;
         }}
-        .btn-payment:hover, .btn-validate:hover {{ transform: translateY(-2px); }}
+        .btn-validate:hover, .btn-payment:hover {{ transform: translateY(-2px); }}
         .btn-validate:disabled, .btn-payment:disabled {{ opacity: 0.6; cursor: not-allowed; transform: none; }}
         .resultado-box {{ margin-top: 20px; padding: 15px; border-radius: 10px; display: none; }}
         .resultado-success {{ background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }}
@@ -599,6 +597,56 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
             text-decoration: none;
             margin-top: 10px;
         }}
+        
+        /* ESTILOS SECCIÓN AUDITORÍA */
+        .auditoria-section {{
+            margin-top: 30px;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 20px;
+            text-align: center;
+        }}
+        .resumen-grid {{
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }}
+        .resumen-item {{
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 90px;
+        }}
+        .resumen-criticas {{ background: #fed7d7; }}
+        .resumen-medias {{ background: #feebc8; }}
+        .resumen-bajas {{ background: #c6f6d5; }}
+        .btn-auditar {{
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 15px 0;
+            transition: transform 0.2s ease;
+        }}
+        .btn-auditar:hover {{ transform: translateY(-2px); }}
+        .btn-auditar:disabled {{ opacity: 0.6; cursor: not-allowed; transform: none; }}
+        .btn-descargar {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            margin-top: 10px;
+        }}
+        .btn-descargar:hover {{ transform: translateY(-2px); }}
+        
         @media (max-width: 600px) {{
             .button-group {{ flex-direction: column; }}
             .btn-validate, .btn-payment, .dropdown {{ width: 100%; }}
@@ -608,6 +656,7 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
                 border: 1px solid #e0e0e0;
                 margin-top: 5px;
             }}
+            .success-card {{ padding: 25px; }}
         }}
     </style>
 </head>
@@ -647,6 +696,53 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
         
         <div id="resultado" class="resultado-box"></div>
         <a href="/" class="btn-back">← Volver al inicio</a>
+        
+        <!-- ================================================ -->
+        <!-- SECCIÓN AUDITORÍA (SE MUESTRA TRAS PAGO EXITOSO) -->
+        <!-- ================================================ -->
+        <div id="seccionAuditoria" class="auditoria-section" style="display:none;">
+            <h3>🛡️ Análisis de Vulnerabilidades</h3>
+            <p style="font-size: 14px; color: #666;">Tu pago ha desbloqueado el escaneo de seguridad para <strong>{dominio}</strong></p>
+            
+            <button onclick="iniciarAuditoria()" id="btnAuditoria" class="btn-auditar">
+                🔍 Iniciar Escaneo de Vulnerabilidades
+            </button>
+            
+            <div id="estadoEscaneo" style="display:none; margin: 15px 0; padding: 10px; background: #f0f7ff; border-radius: 8px; color: #4a5568; font-size: 14px;"></div>
+            
+            <!-- CUADRO DE RESUMEN (OCULTO HASTA TERMINAR) -->
+            <div id="resumenEscaneo" style="display:none; background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin: 15px 0; text-align: left;">
+                <h4 style="margin-bottom: 15px; text-align: center;">📊 Resultados del Análisis para <strong>{dominio}</strong></h4>
+                
+                <div class="resumen-grid">
+                    <div class="resumen-item resumen-criticas">
+                        <span style="font-size: 24px;">🔴</span><br>
+                        <strong>Críticas:</strong> <span id="countCriticas">-</span>
+                    </div>
+                    <div class="resumen-item resumen-medias">
+                        <span style="font-size: 24px;">🟠</span><br>
+                        <strong>Medias:</strong> <span id="countMedias">-</span>
+                    </div>
+                    <div class="resumen-item resumen-bajas">
+                        <span style="font-size: 24px;">🟢</span><br>
+                        <strong>Bajas:</strong> <span id="countBajas">-</span>
+                    </div>
+                    <div class="resumen-item" style="background: #e2e8f0;">
+                        <span style="font-size: 24px;">📋</span><br>
+                        <strong>Total:</strong> <span id="countTotal">-</span>
+                    </div>
+                </div>
+                
+                <h5 style="margin: 15px 0 10px 0;">🔍 Principales hallazgos:</h5>
+                <ul id="listaAlertas" style="font-size: 13px; color: #4a5568; margin-bottom: 15px; padding-left: 20px;"></ul>
+                
+                <div style="text-align: center;">
+                    <a id="linkDescarga" href="#" target="_blank" class="btn-descargar">
+                        📥 Descargar Reporte Completo (HTML)
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
     
     <script>
@@ -654,6 +750,11 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
         const codigo = "{codigo}";
         const dominio = "{dominio}";
         let verificado = false;
+        let escaneoActivo = false;
+        
+        // ============================================
+        // FUNCIONES DE VERIFICACIÓN DNS
+        // ============================================
         
         function habilitarBotonPago() {{
             const btnPago = document.getElementById('btnPago');
@@ -698,6 +799,10 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
             }}
         }}
         
+        // ============================================
+        // FUNCIONES DE PAGO
+        // ============================================
+        
         function mostrarMensaje(opcion) {{
             const resultadoDiv = document.getElementById('resultado');
             resultadoDiv.style.display = 'block';
@@ -728,19 +833,25 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
                         resultadoDiv.className = 'resultado-box resultado-success';
                         resultadoDiv.innerHTML = `
                             <strong>✅ PAGO CONFIRMADO</strong><br><br>
-                            $\{{data.mensaje}}<br><br>
-                            📧 Se ha enviado un email de confirmación al administrador.<br>
-                            📱 Se ha enviado una notificación por Telegram.<br><br>
-                            <em>Gracias por tu pago. Recibirás la activación en breve.</em>
+                            ${{data.mensaje}}<br><br>
+                            📧 Se ha enviado confirmación al administrador.<br>
+                            📱 Notificación enviada por Telegram.<br>
+                            🛡️ Se ha desbloqueado el <strong>Análisis de Vulnerabilidades</strong> más abajo.<br><br>
+                            <em>Gracias por tu pago.</em>
                         `;
+                        // Deshabilitar opción de pago
                         const opcionPago = document.querySelector('.dropdown-content a:last-child');
-                        opcionPago.style.opacity = '0.5';
-                        opcionPago.style.pointerEvents = 'none';
+                        if (opcionPago) {{
+                            opcionPago.style.opacity = '0.5';
+                            opcionPago.style.pointerEvents = 'none';
+                        }}
+                        // HABILITAR SECCIÓN DE AUDITORÍA
+                        habilitarAuditoria();
                     }} else {{
                         resultadoDiv.className = 'resultado-box resultado-error';
                         resultadoDiv.innerHTML = `
                             <strong>❌ ERROR</strong><br><br>
-                            $\{{data.mensaje}}<br><br>
+                            ${{data.mensaje}}<br><br>
                             Por favor, contacta con soporte.
                         `;
                     }}
@@ -749,25 +860,151 @@ def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: st
                     resultadoDiv.className = 'resultado-box resultado-error';
                     resultadoDiv.innerHTML = `
                         <strong>❌ ERROR DE CONEXIÓN</strong><br><br>
-                        No se pudo procesar el pago: $\{{error}}<br>
+                        No se pudo procesar el pago: ${{error}}<br>
                         Intenta nuevamente.
                     `;
                 }});
             }}
+        }}
+        
+        // ============================================
+        // FUNCIONES DE AUDITORÍA DE SEGURIDAD
+        // ============================================
+        
+        function habilitarAuditoria() {{
+            document.getElementById('seccionAuditoria').style.display = 'block';
+            // Hacer scroll suave hasta la sección
+            document.getElementById('seccionAuditoria').scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+        }}
+        
+        async function iniciarAuditoria() {{
+            if (escaneoActivo) {{
+                alert('⚠️ Ya hay un escaneo en curso. Espera a que termine.');
+                return;
+            }}
             
-            setTimeout(() => {{
-                if (resultadoDiv.style.display !== 'none') {{
-                    resultadoDiv.style.display = 'none';
+            const btn = document.getElementById('btnAuditoria');
+            const estadoDiv = document.getElementById('estadoEscaneo');
+            const resumenDiv = document.getElementById('resumenEscaneo');
+            
+            escaneoActivo = true;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span> Iniciando escaneo...';
+            estadoDiv.style.display = 'block';
+            resumenDiv.style.display = 'none';
+            estadoDiv.innerHTML = '⏳ Preparando contenedor ZAP...';
+            
+            try {{
+                // Iniciar escaneo
+                const response = await fetch('/lanzar-escaneo', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/json' }},
+                    body: JSON.stringify({{ email: email, dominio: dominio }})
+                }});
+                const data = await response.json();
+                
+                if (data.exitoso && data.cache) {{
+                    // Ya tenía caché, mostrar inmediatamente
+                    mostrarResumen(data.resumen, data.url_completa);
+                    btn.disabled = false;
+                    btn.innerHTML = '🔄 Re-escanear';
+                    escaneoActivo = false;
+                }} else if (data.exitoso && data.escaneando) {{
+                    // Esperar a que termine (polling cada 10 segundos)
+                    await esperarEscaneo();
+                    btn.disabled = false;
+                    btn.innerHTML = '🔄 Re-escanear';
+                }} else {{
+                    estadoDiv.innerHTML = '❌ Error al iniciar el escaneo.';
+                    btn.disabled = false;
+                    btn.innerHTML = '🔍 Iniciar Escaneo de Vulnerabilidades';
+                    escaneoActivo = false;
                 }}
-            }}, 10000);
+            }} catch (error) {{
+                estadoDiv.innerHTML = '❌ Error de conexión: ' + error;
+                btn.disabled = false;
+                btn.innerHTML = '🔍 Iniciar Escaneo de Vulnerabilidades';
+                escaneoActivo = false;
+            }}
+        }}
+        
+        async function esperarEscaneo() {{
+            const estadoDiv = document.getElementById('estadoEscaneo');
+            let intentos = 0;
+            const maxIntentos = 30; // 5 minutos máximo
+            
+            const mensajes = [
+                '🔍 Rastreando directorios y enlaces...',
+                '📡 Analizando cabeceras HTTP de seguridad...',
+                '🛡️ Verificando configuraciones del servidor...',
+                '🔐 Comprobando cookies y políticas de seguridad...',
+                '📊 Generando informe de vulnerabilidades...'
+            ];
+            
+            while (intentos < maxIntentos) {{
+                await new Promise(r => setTimeout(r, 10000)); // Esperar 10 segundos
+                intentos++;
+                
+                // Cambiar mensaje cada 2 intentos (20 segundos)
+                const indiceMensaje = Math.floor(intentos / 2) % mensajes.length;
+                estadoDiv.innerHTML = mensajes[indiceMensaje] + '<br><small>⏱️ Esperando ' + (intentos * 10) + ' segundos...</small>';
+                
+                try {{
+                    const response = await fetch('/estado-escaneo', {{
+                        method: 'POST',
+                        headers: {{ 'Content-Type': 'application/json' }},
+                        body: JSON.stringify({{ email: email }})
+                    }});
+                    const data = await response.json();
+                    
+                    if (data.completado) {{
+                        mostrarResumen(data.resumen, data.url_completa);
+                        escaneoActivo = false;
+                        return;
+                    }}
+                }} catch (e) {{
+                    console.error('Error verificando estado:', e);
+                }}
+            }}
+            
+            estadoDiv.innerHTML = '⚠️ El escaneo está tardando más de lo esperado. Recarga la página en unos minutos.';
+            escaneoActivo = false;
+        }}
+        
+        function mostrarResumen(resumen, urlCompleta) {{
+            document.getElementById('estadoEscaneo').style.display = 'none';
+            
+            const resumenDiv = document.getElementById('resumenEscaneo');
+            resumenDiv.style.display = 'block';
+            
+            document.getElementById('countCriticas').innerText = resumen.criticas;
+            document.getElementById('countMedias').innerText = resumen.medias;
+            document.getElementById('countBajas').innerText = resumen.bajas;
+            document.getElementById('countTotal').innerText = resumen.total;
+            
+            const lista = document.getElementById('listaAlertas');
+            if (resumen.detalles.length > 0) {{
+                lista.innerHTML = resumen.detalles.map(d => {{
+                    const icono = d.riesgo === '3' ? '🔴' : d.riesgo === '2' ? '🟠' : d.riesgo === '1' ? '🟢' : 'ℹ️';
+                    return `<li>${{icono}} <strong>${{d.nombre}}</strong></li>`;
+                }}).join('');
+            }} else {{
+                lista.innerHTML = '<li>✅ No se detectaron vulnerabilidades.</li>';
+            }}
+            
+            document.getElementById('linkDescarga').href = urlCompleta;
+            
+            // Scroll al resumen
+            resumenDiv.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
         }}
     </script>
 </body>
 </html>
     """
 
+
 # ============================================
-# ENDPOINTS
+# ENDPOINTS PRINCIPALES
 # ============================================
 
 @app.get("/", response_class=HTMLResponse)
@@ -782,30 +1019,26 @@ async def submit_form(
     apellido: str = Form(...),
     email: str = Form(...)
 ):
-    # Validar email corporativo
     es_valido, mensaje = email_es_corporativo(email)
     
     if not es_valido:
-        return f"""<html><body><h1>⛔ {mensaje}</h1><a href="/">Volver</a></body></html>"""
+        return f"""<html><body style="font-family:sans-serif;padding:40px;text-align:center;"><h1>⛔ {mensaje}</h1><a href="/">Volver</a></body></html>"""
     
-    # Obtener código existente o crear nuevo (SOLO ESTA LÍNEA)
     codigo_verificacion, es_nuevo = guardar_o_obtener_codigo(email, nombre, apellido)
     
-    # Enviar email al usuario
     background_tasks.add_task(enviar_email_verificacion, nombre, apellido, email, codigo_verificacion)
     
-    # Enviar notificación al admin solo si es nuevo
     if es_nuevo:
         background_tasks.add_task(enviar_email_admin, nombre, apellido, email, codigo_verificacion, True)
     
-    # Guardar log
     with open("registros.txt", "a", encoding="utf-8") as f:
         f.write(f"{datetime.now()} | {nombre} {apellido} | {email} | CODIGO: {codigo_verificacion} | {'NUEVO' if es_nuevo else 'REUTILIZADO'}\n")
     
     return generar_html_confirmacion(nombre, apellido, email, codigo_verificacion, es_nuevo)
 
+
 # ============================================
-# VALIDACIÓN DNS TXT (SOLO ESTE MÉTODO)
+# VALIDACIÓN DNS TXT
 # ============================================
 
 @app.post("/validar-dns")
@@ -815,7 +1048,6 @@ async def validar_dns(request: Request):
     codigo = data.get("codigo")
     dominio = data.get("dominio")
     
-    # Verificar por DNS TXT
     resultado = verificar_dns_txt(dominio, codigo)
     
     if resultado["existe"]:
@@ -857,6 +1089,10 @@ async def estado_verificacion(request: Request):
     return {"verificado": False}
 
 
+# ============================================
+# PÁGINA DE PAGO
+# ============================================
+
 @app.get("/pago/{codigo}")
 async def pagina_pago(codigo: str):
     return f"""
@@ -885,118 +1121,42 @@ async def pagina_pago(codigo: str):
                 text-align: center;
                 box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             }}
-            .monto {{
-                font-size: 48px;
-                color: #28a745;
-                font-weight: bold;
-                margin: 20px 0;
-            }}
+            .monto {{ font-size: 48px; color: #28a745; font-weight: bold; margin: 20px 0; }}
             .codigo {{
-                background: #2d3748;
-                color: #68d391;
-                font-family: monospace;
-                padding: 15px;
-                border-radius: 8px;
-                margin: 20px 0;
-                word-break: break-all;
-                font-size: 14px;
+                background: #2d3748; color: #68d391; font-family: monospace;
+                padding: 15px; border-radius: 8px; margin: 20px 0; word-break: break-all; font-size: 14px;
             }}
-            .button-group {{
-                display: flex;
-                gap: 15px;
-                margin: 25px 0;
-                flex-wrap: wrap;
-                justify-content: center;
-            }}
+            .button-group {{ display: flex; gap: 15px; margin: 25px 0; flex-wrap: wrap; justify-content: center; }}
             .btn-pagar {{
                 background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-                color: white;
-                padding: 14px 24px;
-                border: none;
-                border-radius: 10px;
-                font-size: 16px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: transform 0.2s ease;
-                flex: 1;
-                min-width: 180px;
+                color: white; padding: 14px 24px; border: none; border-radius: 10px;
+                font-size: 16px; font-weight: 600; cursor: pointer; flex: 1; min-width: 180px;
             }}
             .btn-completado {{
                 background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-                color: white;
-                padding: 14px 24px;
-                border: none;
-                border-radius: 10px;
-                font-size: 16px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: transform 0.2s ease;
-                flex: 1;
-                min-width: 180px;
+                color: white; padding: 14px 24px; border: none; border-radius: 10px;
+                font-size: 16px; font-weight: 600; cursor: pointer; flex: 1; min-width: 180px;
             }}
             .btn-back {{
-                background: #6c757d;
-                color: white;
-                padding: 12px 24px;
-                border: none;
-                border-radius: 10px;
-                text-decoration: none;
-                display: inline-block;
-                margin-top: 10px;
+                background: #6c757d; color: white; padding: 12px 24px; border: none;
+                border-radius: 10px; text-decoration: none; display: inline-block; margin-top: 10px;
             }}
             .btn-pagar:hover, .btn-completado:hover {{ transform: translateY(-2px); }}
-            .btn-pagar:disabled, .btn-completado:disabled {{ opacity: 0.6; cursor: not-allowed; transform: none; }}
-            .resultado-box {{
-                margin-top: 20px;
-                padding: 15px;
-                border-radius: 10px;
-                display: none;
-            }}
-            .resultado-success {{
-                background: #d4edda;
-                color: #155724;
-                border: 1px solid #c3e6cb;
-            }}
-            .resultado-warning {{
-                background: #fff3cd;
-                color: #856404;
-                border: 1px solid #ffeeba;
-            }}
-            .resultado-info {{
-                background: #d1ecf1;
-                color: #0c5460;
-                border: 1px solid #bee5eb;
-            }}
+            .btn-pagar:disabled, .btn-completado:disabled {{ opacity: 0.6; cursor: not-allowed; }}
+            .resultado-box {{ margin-top: 20px; padding: 15px; border-radius: 10px; display: none; }}
+            .resultado-success {{ background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }}
+            .resultado-warning {{ background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }}
+            .resultado-info {{ background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }}
             .loading-spinner {{
-                display: inline-block;
-                width: 20px;
-                height: 20px;
-                border: 3px solid rgba(255,255,255,0.3);
-                border-radius: 50%;
-                border-top-color: white;
-                animation: spin 0.8s linear infinite;
-                margin-right: 8px;
-                vertical-align: middle;
+                display: inline-block; width: 20px; height: 20px;
+                border: 3px solid rgba(255,255,255,0.3); border-radius: 50%;
+                border-top-color: white; animation: spin 0.8s linear infinite;
+                margin-right: 8px; vertical-align: middle;
             }}
             @keyframes spin {{ to {{ transform: rotate(360deg); }} }}
-            .tiempo-restante {{
-                font-size: 14px;
-                color: #666;
-                margin-top: 10px;
-            }}
-            hr {{
-                margin: 20px 0;
-                border: none;
-                border-top: 1px solid #e0e0e0;
-            }}
             .badge {{
-                display: inline-block;
-                background: #ffc107;
-                color: #856404;
-                padding: 5px 12px;
-                border-radius: 20px;
-                font-size: 12px;
-                margin-bottom: 15px;
+                display: inline-block; background: #ffc107; color: #856404;
+                padding: 5px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 15px;
             }}
         </style>
     </head>
@@ -1005,39 +1165,19 @@ async def pagina_pago(codigo: str):
             <div class="badge">💰 MODO DESARROLLO - PAGO SIMULADO</div>
             <h1>💰 Sección de Pago</h1>
             <p>Dominio verificado correctamente ✅</p>
-            
             <div class="monto">$50 USD</div>
-            
-            <div class="codigo">
-                <strong>Código de referencia:</strong><br>
-                {codigo}
-            </div>
-            
+            <div class="codigo"><strong>Código de referencia:</strong><br>{codigo}</div>
             <h3>Datos para transferencia</h3>
-            <p>
-                Banco: [TU BANCO]<br>
-                Cuenta: [TU CUENTA]<br>
-                Titular: [TU NOMBRE]<br>
-                Concepto: <strong>{codigo}</strong>
-            </p>
-            
-            <hr>
-            
+            <p>Banco: [TU BANCO]<br>Cuenta: [TU CUENTA]<br>Titular: [TU NOMBRE]<br>Concepto: <strong>{codigo}</strong></p>
+            <hr style="margin:20px 0; border:none; border-top:1px solid #e0e0e0;">
             <h3>Opciones de pago</h3>
             <div class="button-group">
-                <button onclick="realizarPago()" id="btnPagar" class="btn-pagar">
-                    💳 Realizar Pago
-                </button>
-                <button onclick="simularPagoCompletado()" id="btnCompletado" class="btn-completado">
-                    ✅ Pago Completado
-                </button>
+                <button onclick="realizarPago()" id="btnPagar" class="btn-pagar">💳 Realizar Pago</button>
+                <button onclick="simularPagoCompletado()" id="btnCompletado" class="btn-completado">✅ Pago Completado</button>
             </div>
-            
             <div id="resultado" class="resultado-box"></div>
-            
             <a href="/" class="btn-back">← Volver al inicio</a>
         </div>
-        
         <script>
             const codigo = "{codigo}";
             let temporizadorActivo = false;
@@ -1045,173 +1185,61 @@ async def pagina_pago(codigo: str):
             let tiempoRestante = 0;
             
             function mostrarResultado(tipo, mensaje) {{
-                const resultadoDiv = document.getElementById('resultado');
-                resultadoDiv.style.display = 'block';
-                resultadoDiv.className = 'resultado-box resultado-' + tipo;
-                resultadoDiv.innerHTML = mensaje;
-            }}
-            
-            function limpiarTemporizador() {{
-                if (intervalId) {{
-                    clearInterval(intervalId);
-                    intervalId = null;
-                }}
-                temporizadorActivo = false;
+                const div = document.getElementById('resultado');
+                div.style.display = 'block';
+                div.className = 'resultado-box resultado-' + tipo;
+                div.innerHTML = mensaje;
             }}
             
             async function realizarPago() {{
-                const btnPagar = document.getElementById('btnPagar');
-                const btnCompletado = document.getElementById('btnCompletado');
-                
-                btnPagar.disabled = true;
-                btnPagar.innerHTML = '<span class="loading-spinner"></span> Redirigiendo a pasarela de pago...';
-                
-                // Simular redirección a pasarela de pago
-                mostrarResultado('info', '🔄 Redirigiendo a la pasarela de pago... (Modo desarrollo - API de pago no integrada aún)');
-                
+                const btn = document.getElementById('btnPagar');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading-spinner"></span> Redirigiendo...';
+                mostrarResultado('info', '🔄 Redirigiendo a la pasarela de pago... (Modo desarrollo)');
                 setTimeout(() => {{
-                    mostrarResultado('info', `
-                        <strong>💰 EN DESARROLLO</strong><br><br>
-                        La integración con pasarelas de pago (Stripe, MercadoPago, PayPal) está en fase beta.<br><br>
-                        Por ahora, usa el botón <strong>"Pago Completado"</strong> para simular el proceso.<br><br>
-                        <strong>Para producción se integrará:</strong><br>
-                        • Stripe - Tarjetas de crédito/débito<br>
-                        • PayPal - Cuentas PayPal<br>
-                        • Transferencia bancaria (actual)
-                    `);
-                    btnPagar.disabled = false;
-                    btnPagar.innerHTML = '💳 Realizar Pago';
+                    mostrarResultado('info', '<strong>💰 EN DESARROLLO</strong><br><br>Usa el botón <strong>"Pago Completado"</strong> para simular.');
+                    btn.disabled = false;
+                    btn.innerHTML = '💳 Realizar Pago';
                 }}, 2000);
             }}
             
             async function simularPagoCompletado() {{
-                if (temporizadorActivo) {{
-                    mostrarResultado('warning', '⚠️ Ya hay una simulación de pago en proceso. Espera a que termine.');
-                    return;
-                }}
-                
-                const btnCompletado = document.getElementById('btnCompletado');
-                const btnPagar = document.getElementById('btnPagar');
-                
-                // Simular espera de 2 segundos (en producción serán 5 minutos)
+                if (temporizadorActivo) {{ mostrarResultado('warning', '⚠️ Ya hay un proceso en curso.'); return; }}
+                const btnC = document.getElementById('btnCompletado');
+                const btnP = document.getElementById('btnPagar');
                 tiempoRestante = 2;
                 temporizadorActivo = true;
-                
-                btnCompletado.disabled = true;
-                btnPagar.disabled = true;
-                
-                mostrarResultado('info', `
-                    <strong>🔄 Verificando pago...</strong><br><br>
-                    Simulando confirmación de pago...<br>
-                    ⏱️ Tiempo restante: <span id="contador">2</span> segundos
-                `);
-                
-                // Actualizar contador cada segundo
+                btnC.disabled = true;
+                btnP.disabled = true;
+                mostrarResultado('info', '<strong>🔄 Verificando pago...</strong><br>⏱️ Tiempo restante: <span id="contador">2</span> segundos');
                 intervalId = setInterval(() => {{
                     tiempoRestante--;
-                    const contadorSpan = document.getElementById('contador');
-                    if (contadorSpan) {{
-                        contadorSpan.textContent = tiempoRestante;
-                    }}
-                    
-                    if (tiempoRestante <= 0) {{
-                        clearInterval(intervalId);
-                        intervalId = null;
-                        
-                        // Finalizar simulación y enviar notificación
-                        finalizarPagoConfirmado();
-                    }}
+                    const c = document.getElementById('contador');
+                    if (c) c.textContent = tiempoRestante;
+                    if (tiempoRestante <= 0) {{ clearInterval(intervalId); finalizarPago(); }}
                 }}, 1000);
             }}
             
-            async function finalizarPagoConfirmado() {{
-                const resultadoDiv = document.getElementById('resultado');
-                const btnCompletado = document.getElementById('btnCompletado');
-                const btnPagar = document.getElementById('btnPagar');
-                
-                // Mostrar mensaje de procesando notificación
-                resultadoDiv.className = 'resultado-box resultado-info';
-                resultadoDiv.innerHTML = '<span class="loading-spinner"></span> Enviando notificación de pago...';
-                
+            async function finalizarPago() {{
+                mostrarResultado('info', '<span class="loading-spinner"></span> Enviando notificación...');
                 try {{
-                    // Enviar notificación al webhook
-                    const response = await fetch('/webhook-pago', {{
-                        method: 'POST',
-                        headers: {{ 'Content-Type': 'application/json' }},
+                    const r = await fetch('/webhook-pago', {{
+                        method: 'POST', headers: {{ 'Content-Type': 'application/json' }},
                         body: JSON.stringify({{ codigo: codigo }})
                     }});
-                    
-                    const data = await response.json();
-                    
-                    if (data.exitoso) {{
-                        mostrarResultado('success', `
-                            <strong>✅ ¡PAGO CONFIRMADO!</strong><br><br>
-                            ${data.mensaje}<br><br>
-                            📧 Se ha enviado una notificación al administrador.<br>
-                            📱 Recibirás confirmación por email y WhatsApp.<br><br>
-                            <strong>Gracias por confiar en klbrs.es</strong>
-                        `);
-                        
-                        // Deshabilitar botones permanentemente
-                        btnCompletado.disabled = true;
-                        btnPagar.disabled = true;
-                        btnCompletado.style.opacity = '0.5';
-                        btnPagar.style.opacity = '0.5';
-                        
-                        // Mostrar confeti o celebración visual
-                        mostrarCelebracion();
+                    const d = await r.json();
+                    if (d.exitoso) {{
+                        mostrarResultado('success', '<strong>✅ PAGO CONFIRMADO</strong><br><br>' + d.mensaje);
+                        document.getElementById('btnCompletado').disabled = true;
+                        document.getElementById('btnPagar').disabled = true;
                     }} else {{
-                        mostrarResultado('warning', `
-                            <strong>⚠️ Error en la notificación</strong><br><br>
-                            ${data.mensaje}<br><br>
-                            Por favor, contacta con soporte.
-                        `);
-                        btnCompletado.disabled = false;
-                        btnPagar.disabled = false;
+                        mostrarResultado('warning', '<strong>⚠️ Error:</strong> ' + d.mensaje);
+                        document.getElementById('btnCompletado').disabled = false;
+                        document.getElementById('btnPagar').disabled = false;
                     }}
-                }} catch (error) {{
-                    mostrarResultado('warning', `
-                        <strong>⚠️ Error de conexión</strong><br><br>
-                        No se pudo enviar la notificación de pago.<br>
-                        Intenta nuevamente.
-                    `);
-                    btnCompletado.disabled = false;
-                    btnPagar.disabled = false;
-                }} finally {{
-                    temporizadorActivo = false;
-                    if (intervalId) clearInterval(intervalId);
-                    intervalId = null;
-                }}
-            }}
-            
-            function mostrarCelebracion() {{
-                // Efecto visual simple de celebración
-                const colores = ['#28a745', '#20c997', '#17a2b8', '#ffc107'];
-                for (let i = 0; i < 20; i++) {{
-                    setTimeout(() => {{
-                        const div = document.createElement('div');
-                        div.style.position = 'fixed';
-                        div.style.width = '10px';
-                        div.style.height = '10px';
-                        div.style.backgroundColor = colores[Math.floor(Math.random() * colores.length)];
-                        div.style.borderRadius = '50%';
-                        div.style.left = Math.random() * window.innerWidth + 'px';
-                        div.style.top = '-10px';
-                        div.style.pointerEvents = 'none';
-                        div.style.zIndex = '9999';
-                        div.style.transition = 'all 1s ease-out';
-                        document.body.appendChild(div);
-                        
-                        setTimeout(() => {{
-                            div.style.top = window.innerHeight + 'px';
-                            div.style.opacity = '0';
-                        }}, 10);
-                        
-                        setTimeout(() => {{
-                            div.remove();
-                        }}, 1100);
-                    }}, i * 50);
-                }}
+                }} catch(e) {{
+                    mostrarResultado('warning', '<strong>⚠️ Error de conexión</strong>');
+                }} finally {{ temporizadorActivo = false; }}
             }}
         </script>
     </body>
@@ -1220,63 +1248,8 @@ async def pagina_pago(codigo: str):
 
 
 # ============================================
-# FUNCIÓN DE NOTIFICACIÓN POR TELEGRAM
+# WEBHOOK DE PAGO
 # ============================================
-
-async def enviar_notificacion_telegram_pago(nombre: str, apellido: str, email: str, codigo: str, monto: float = 50.00):
-    """
-    Envía notificación a Telegram cuando se confirma un pago
-    """
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        logger.warning("⚠️ Token de Telegram no configurado. Omitiendo notificación.")
-        return False
-    
-    try:
-        import aiohttp
-        
-        dominio = email.split('@')[1]
-        
-        mensaje = f"""
-💳 <b>NUEVO PAGO RECIBIDO</b>
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-👤 <b>Cliente:</b> {nombre} {apellido}
-📧 <b>Email:</b> {email}
-🌐 <b>Dominio:</b> {dominio}
-💰 <b>Monto:</b> ${monto:.2f} USD
-🔑 <b>Código:</b> <code>{codigo}</code>
-📅 <b>Fecha:</b> {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-⏳ <b>Estado:</b> Pago en proceso de verificación
-📱 <b>Próximo paso:</b> Contactar al cliente para confirmar
-━━━━━━━━━━━━━━━━━━━━━━━━
-        """
-        
-        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-        
-        payload = {
-            "chat_id": TELEGRAM_CHAT_ID,
-            "text": mensaje,
-            "parse_mode": "HTML"
-        }
-        
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, json=payload, timeout=10) as response:
-                if response.status == 200:
-                    logger.info(f"✅ Notificación Telegram enviada por pago de {nombre} {apellido}")
-                    return True
-                else:
-                    error_data = await response.text()
-                    logger.error(f"❌ Error enviando a Telegram: {error_data}")
-                    return False
-                    
-    except ImportError:
-        logger.error("❌ aiohttp no instalado. Instálalo con: pip install aiohttp")
-        return False
-    except Exception as e:
-        logger.error(f"❌ Error enviando notificación Telegram: {str(e)}")
-        return False
 
 @app.post("/webhook-pago")
 async def webhook_pago(request: Request, background_tasks: BackgroundTasks):
@@ -1302,50 +1275,172 @@ async def webhook_pago(request: Request, background_tasks: BackgroundTasks):
     if not usuario_encontrado:
         return {"exitoso": False, "mensaje": "Código no encontrado"}
     
-    # Verificar si ya estaba pagado
     if usuario_encontrado.get("pagado", False):
-        # Aún así enviamos notificación de que se intentó
-        background_tasks.add_task(
-            enviar_notificacion_telegram_pago,
-            usuario_encontrado['nombre'],
-            usuario_encontrado['apellido'],
-            email_encontrado,
-            codigo,
-            monto
-        )
         return {"exitoso": True, "mensaje": "Este pago ya había sido confirmado anteriormente"}
     
-    # Marcar como pagado
     pendientes[email_encontrado]["pagado"] = True
     pendientes[email_encontrado]["fecha_pago"] = datetime.now().isoformat()
     
     with open(ARCHIVO_PENDIENTES, "w") as f:
         json.dump(pendientes, f, indent=2, ensure_ascii=False)
     
-    # Guardar en archivo de pagos
     with open("pagos_registrados.txt", "a", encoding="utf-8") as f:
         f.write(f"{datetime.now().isoformat()} | {email_encontrado} | {usuario_encontrado['nombre']} | {usuario_encontrado['apellido']} | CODIGO: {codigo} | MONTO: ${monto}\n")
     
     logger.info(f"💰 Pago registrado: {email_encontrado} - ${monto}")
     
-    # ✅ ENVIAR NOTIFICACIÓN A TELEGRAM EN SEGUNDO PLANO
-    background_tasks.add_task(
-        enviar_notificacion_telegram_pago,
-        usuario_encontrado['nombre'],
-        usuario_encontrado['apellido'],
-        email_encontrado,
-        codigo,
-        monto
-    )
-    
-    # También puedes enviar email de confirmación al admin
-    # background_tasks.add_task(enviar_email_confirmacion_pago, ...)
+    # Notificación Telegram (ejecución directa con manejo de errores)
+    try:
+        resultado_tg = enviar_notificacion_pago_telegram(usuario_encontrado, codigo, monto)
+        logger.info(f"📱 Resultado Telegram: {resultado_tg}")
+    except Exception as e:
+        logger.error(f"❌ Error enviando Telegram: {e}")
     
     return {
-        "exitoso": True, 
+        "exitoso": True,
         "mensaje": f"Pago confirmado correctamente. Monto: ${monto}. Nos pondremos en contacto contigo pronto."
     }
 
+
+# ============================================
+# MOTOR DE ESCANEO ZAP
+# ============================================
+
+async def ejecutar_escaneo_zap(dominio_objetivo: str, email_usuario: str):
+    """Ejecuta ZAP en segundo plano. Sobreescribe el reporte si existe."""
+    nombre_base = f"reporte_{email_usuario.split('@')[1]}"
+    
+    comando = [
+        "sudo", "docker", "run", "--rm",
+        "-v", f"{os.getcwd()}:/zap/wrk/:rw",
+        "ghcr.io/zaproxy/zaproxy:stable",
+        "zap-baseline.py",
+        "-t", f"https://{dominio_objetivo}",
+        "-r", f"{nombre_base}.html",
+        "-J", f"{nombre_base}.json"
+    ]
+    
+    try:
+        logger.info(f"🚀 Iniciando escaneo ZAP para {dominio_objetivo} (usuario: {email_usuario})")
+        
+        proceso = await asyncio.create_subprocess_exec(
+            *comando,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await proceso.communicate()
+        
+        if proceso.returncode != 0:
+            logger.error(f"❌ Error en escaneo ZAP: {stderr.decode()}")
+            return None
+        
+        # Corregir permisos
+        subprocess.run(["sudo", "chown", "kali:kali", f"{nombre_base}.html", f"{nombre_base}.json"], check=False)
+        
+        logger.info(f"✅ Escaneo completado para {email_usuario}. Reportes: {nombre_base}.html / {nombre_base}.json")
+        return nombre_base
+        
+    except Exception as e:
+        logger.error(f"❌ Error ejecutando escaneo: {e}")
+        return None
+
+
+def extraer_resumen(datos_zap: dict) -> dict:
+    """Extrae resumen del JSON de ZAP"""
+    alertas = datos_zap.get("site", [{}])[0].get("alerts", [])
+    
+    criticas = [a for a in alertas if a.get('riskcode') == '3']
+    medias = [a for a in alertas if a.get('riskcode') == '2']
+    bajas = [a for a in alertas if a.get('riskcode') == '1']
+    
+    return {
+        "total": len(alertas),
+        "criticas": len(criticas),
+        "medias": len(medias),
+        "bajas": len(bajas),
+        "detalles": [{"nombre": a['alert'], "riesgo": a.get('riskcode', '0')} for a in alertas[:5]]
+    }
+
+
+# ============================================
+# ENDPOINTS DE AUDITORÍA
+# ============================================
+
+@app.post("/lanzar-escaneo")
+async def lanzar_escaneo(request: Request, background_tasks: BackgroundTasks):
+    """Lanza escaneo ZAP y devuelve estado"""
+    data = await request.json()
+    email = data.get("email")
+    dominio = data.get("dominio")
+    
+    if not email or not dominio:
+        return {"exitoso": False, "error": "Email y dominio requeridos"}
+    
+    nombre_base = f"reporte_{email.split('@')[1]}"
+    
+    # Verificar si ya existe un escaneo reciente (caché)
+    if os.path.exists(f"{nombre_base}.json"):
+        try:
+            with open(f"{nombre_base}.json", "r") as f:
+                datos = json.load(f)
+            resumen = extraer_resumen(datos)
+            logger.info(f"📂 Usando caché para {email}")
+            return {
+                "exitoso": True,
+                "resumen": resumen,
+                "url_completa": f"/descargar/{nombre_base}.html",
+                "cache": True
+            }
+        except:
+            pass
+    
+    # Si no existe caché, lanzar escaneo en background
+    background_tasks.add_task(ejecutar_escaneo_zap, dominio, email)
+    
+    logger.info(f"🔄 Escaneo lanzado en background para {email}")
+    return {
+        "exitoso": True,
+        "mensaje": "Escaneo iniciado. Durará 2-3 minutos.",
+        "escaneando": True
+    }
+
+
+@app.post("/estado-escaneo")
+async def estado_escaneo(request: Request):
+    """Verifica si el escaneo terminó y devuelve resumen"""
+    data = await request.json()
+    email = data.get("email")
+    nombre_base = f"reporte_{email.split('@')[1]}"
+    
+    if os.path.exists(f"{nombre_base}.json"):
+        try:
+            with open(f"{nombre_base}.json", "r") as f:
+                datos = json.load(f)
+            resumen = extraer_resumen(datos)
+            return {
+                "completado": True,
+                "resumen": resumen,
+                "url_completa": f"/descargar/{nombre_base}.html"
+            }
+        except:
+            pass
+    
+    return {"completado": False}
+
+
+@app.get("/descargar/{archivo}")
+async def descargar_reporte(archivo: str):
+    """Sirve el archivo HTML del reporte para descarga"""
+    if os.path.exists(archivo):
+        return FileResponse(path=archivo, filename=archivo, media_type="text/html")
+    return {"error": "Reporte no encontrado. Ejecuta primero el escaneo."}
+
+
+# ============================================
+# INICIO DEL SERVIDOR
+# ============================================
+
 if __name__ == "__main__":
     import uvicorn
+    logger.info("🔥 Iniciando servidor klbrs.es en http://127.0.0.1:8000")
     uvicorn.run(app, host="127.0.0.1", port=8000)
