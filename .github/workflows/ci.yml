@@ -1,0 +1,108 @@
+name: CI - Verificaciones obligatorias
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: 🔍 Validar código y funciones clave
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: 🐍 Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Instalar dependencias
+        run: |
+          pip install --upgrade pip
+          pip install fastapi uvicorn python-dotenv requests dnspython
+
+      - name: 🔍 Compilar main.py
+        run: python -m py_compile main.py
+
+      - name: 🔍 Compilar verificar.py
+        run: python -m py_compile verificar.py
+
+      - name: 🧪 Importar main (sin errores)
+        run: python -c "import main; print('✅ main importado')"
+
+      - name: 🔐 Verificar generación de código de 43 caracteres
+        run: |
+          python -c "
+          import main
+          c = main.generar_codigo_verificacion()
+          assert len(c) == 43, f'Longitud incorrecta: {len(c)}'
+          assert all(ch in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_' for ch in c)
+          print(f'✅ Código OK: {c[:10]}...')
+          "
+
+      - name: 📧 Validar función email_es_corporativo (pruebas genéricas)
+        run: |
+          python -c "
+          import main
+          # Debe rechazar email gratuito
+          valido, _ = main.email_es_corporativo('test@gmail.com')
+          assert valido == False, 'No rechazó email gratuito'
+          # Debe aceptar email corporativo (dominio cualquiera no listado como gratuito)
+          valido, _ = main.email_es_corporativo('usuario@ejemplo.com')
+          assert valido == True, 'Rechazó email corporativo'
+          print('✅ Validación de emails OK')
+          "
+
+      - name: 🛡️ Verificar funciones críticas (endpoints principales)
+        run: |
+          python -c "
+          import main
+          endpoints_requeridos = [
+              'verificar_dns_txt',
+              'guardar_o_obtener_codigo',
+              'enviar_email_verificacion',
+              'webhook_pago'
+          ]
+          for func in endpoints_requeridos:
+              assert hasattr(main, func), f'Falta función {func}'
+          print('✅ Funciones críticas presentes')
+          "
+
+      - name: 🚫 Comprobar que .env NO está en el repositorio (seguridad)
+        run: |
+          if [ -f .env ]; then
+            echo "❌ El archivo .env está en el repositorio. Elimínalo con 'git rm --cached .env' y añádelo a .gitignore"
+            exit 1
+          else
+            echo "✅ .env no está en el repositorio"
+          fi
+
+      - name: 🧹 Verificar que archivos de datos locales no se suben
+        run: |
+          archivos_prohibidos="pendientes_verificacion.json registros.txt pagos_registrados.txt reporte_klbrs.es.html reporte_klbrs.es.json"
+          error=0
+          for f in $archivos_prohibidos; do
+            if [ -f "$f" ]; then
+              echo "⚠️ Archivo local $f presente en el repositorio (debería estar en .gitignore)"
+              error=1
+            fi
+          done
+          if [ $error -eq 1 ]; then
+            echo "❌ Los archivos listados no deberían versionarse. Ejecuta: git rm --cached <archivo> y actualiza .gitignore"
+            exit 1
+          fi
+          echo "✅ No hay archivos de datos sensibles en el repo"
+
+      - name: 📝 Registrar información del commit (auditoría)
+        run: |
+          echo "🔍 Información del commit:"
+          echo "  Autor: ${{ github.actor }}"
+          echo "  Rama: ${{ github.ref_name }}"
+          echo "  Evento: ${{ github.event_name }}"
+          echo "  Commit: ${{ github.sha }}"
+          echo "  Mensaje: ${{ github.event.head_commit.message }}"
+          echo "  Fecha: $(date)"
