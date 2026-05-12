@@ -7,25 +7,20 @@ __pycache__/
 .env
 .env.local
 
-# Datos de la aplicación (locales)
+# Archivos de datos locales de la aplicación (generados en tiempo real)
 pendientes_verificacion.json
 registros.txt
 pagos_registrados.txt
 reporte_klbrs.es.html
 reporte_klbrs.es.json
 reportes/
+zap.yaml
 *.log
 
-# Backups y temporales
+# Backups
 *.backup.*
 *_backup*
-*.bak
 main.py.backup_*
-
-# Reportes ZAP
-zap.yaml
-*.html
-*.json
 
 # IDE
 .vscode/
