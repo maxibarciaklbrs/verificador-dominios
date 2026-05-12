@@ -1,6 +1,32 @@
-.env
+# Entorno virtual
+venv/
 __pycache__/
-*.json
-*.txt
+*.pyc
+
+# Credenciales
+.env
+.env.local
+
+# Datos de la aplicación (locales)
+pendientes_verificacion.json
+registros.txt
+pagos_registrados.txt
+reporte_klbrs.es.html
+reporte_klbrs.es.json
+reportes/
+*.log
+
+# Backups y temporales
+*.backup.*
+*_backup*
+*.bak
+main.py.backup_*
+
+# Reportes ZAP
+zap.yaml
 *.html
-*.db
+*.json
+
+# IDE
+.vscode/
+.idea/
