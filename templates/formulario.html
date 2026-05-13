@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Registro Corporativo - klbrs.es{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>📝 Registro Corporativo</h1>
+    <p class="subtitle">Verifica tu dominio con registro TXT</p>
+    <form id="registroForm" action="/submit" method="post">
+        <div class="form-group">
+            <label>Nombre <span class="required">*</span></label>
+            <input type="text" name="nombre" required placeholder="Tu nombre">
+        </div>
+        <div class="form-group">
+            <label>Apellido <span class="required">*</span></label>
+            <input type="text" name="apellido" required placeholder="Tu apellido">
+        </div>
+        <div class="form-group">
+            <label>Email Corporativo <span class="required">*</span></label>
+            <input type="email" name="email" required placeholder="nombre@tuempresa.com">
+        </div>
+        <button type="submit">Enviar ✨</button>
+    </form>
+    <div id="loading" class="loading">Validando email...</div>
+    <div class="warning">
+        ⚠️ No se permiten emails gratuitos. Usa tu email corporativo.
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('registroForm').addEventListener('submit', function(e) {
+        document.getElementById('loading').style.display = 'block';
+        document.querySelector('button').disabled = true;
+    });
+</script>
+{% endblock %}

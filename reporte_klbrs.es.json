@@ -1,0 +1,1037 @@
+{
+	"@programName": "ZAP",
+	"@version": "2.17.0",
+	"@generated": "Wed, 6 May 2026 18:27:55",
+	"created": "2026-05-06T18:27:55.596007865Z",
+	"insights":[
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://klbrs.es",
+			"key": "insight.code.2xx",
+			"description": "Percentage of responses with status code 2xx",
+			"statistic": "44"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://klbrs.es",
+			"key": "insight.code.4xx",
+			"description": "Percentage of responses with status code 4xx",
+			"statistic": "55"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://klbrs.es",
+			"key": "insight.endpoint.ctype.application/javascript",
+			"description": "Percentage of endpoints with content type application/javascript",
+			"statistic": "5"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://klbrs.es",
+			"key": "insight.endpoint.ctype.application/pdf",
+			"description": "Percentage of endpoints with content type application/pdf",
+			"statistic": "1"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://klbrs.es",
+			"key": "insight.endpoint.ctype.image/jpeg",
+			"description": "Percentage of endpoints with content type image/jpeg",
+			"statistic": "11"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://klbrs.es",
+			"key": "insight.endpoint.ctype.image/png",
+			"description": "Percentage of endpoints with content type image/png",
+			"statistic": "6"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://klbrs.es",
+			"key": "insight.endpoint.ctype.image/svg+xml",
+			"description": "Percentage of endpoints with content type image/svg+xml",
+			"statistic": "1"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://klbrs.es",
+			"key": "insight.endpoint.ctype.text/css",
+			"description": "Percentage of endpoints with content type text/css",
+			"statistic": "2"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://klbrs.es",
+			"key": "insight.endpoint.ctype.text/html",
+			"description": "Percentage of endpoints with content type text/html",
+			"statistic": "72"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://klbrs.es",
+			"key": "insight.endpoint.method.GET",
+			"description": "Percentage of endpoints with method GET",
+			"statistic": "99"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://klbrs.es",
+			"key": "insight.endpoint.total",
+			"description": "Count of total endpoints",
+			"statistic": "336"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://klbrs.es",
+			"key": "insight.response.slow",
+			"description": "Percentage of slow responses",
+			"statistic": "100"
+		}
+	],
+	"site":[ 
+		{
+			"@name": "https://klbrs.es",
+			"@host": "klbrs.es",
+			"@port": "443",
+			"@ssl": "true",
+			"alerts": [ 
+				{
+					"pluginid": "10038",
+					"alertRef": "10038-1",
+					"alert": "Content Security Policy (CSP) Header Not Set",
+					"name": "Content Security Policy (CSP) Header Not Set",
+					"riskcode": "2",
+					"confidence": "3",
+					"riskdesc": "Medium (High)",
+					"desc": "<p>Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page \u2014 covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.</p>",
+					"instances":[ 
+						{
+							"id": "1",
+							"uri": "https://klbrs.es",
+							"nodeName": "https:\/\/klbrs.es",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "23",
+							"uri": "https://klbrs.es/",
+							"nodeName": "https:\/\/klbrs.es\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "26",
+							"uri": "https://klbrs.es/pruebas-de-penetracion.html",
+							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "10",
+							"uri": "https://klbrs.es/robots.txt",
+							"nodeName": "https:\/\/klbrs.es\/robots.txt",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "11",
+							"uri": "https://klbrs.es/sitemap.xml",
+							"nodeName": "https:\/\/klbrs.es\/sitemap.xml",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "<p>Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.</p>",
+					"otherinfo": "",
+					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP</p><p>https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html</p><p>https://www.w3.org/TR/CSP/</p><p>https://w3c.github.io/webappsec-csp/</p><p>https://web.dev/articles/csp</p><p>https://caniuse.com/#feat=contentsecuritypolicy</p><p>https://content-security-policy.com/</p>",
+					"cweid": "693",
+					"wascid": "15",
+					"sourceid": "1"
+				},
+				{
+					"pluginid": "90003",
+					"alertRef": "90003",
+					"alert": "Sub Resource Integrity Attribute Missing",
+					"name": "Sub Resource Integrity Attribute Missing",
+					"riskcode": "2",
+					"confidence": "3",
+					"riskdesc": "Medium (High)",
+					"desc": "<p>The integrity attribute is missing on a script or link tag served by an external server. The integrity tag prevents an attacker who have gained access to this server from injecting a malicious content.</p>",
+					"instances":[ 
+						{
+							"id": "83",
+							"uri": "https://klbrs.es/analisis-vulnerabilidades-AWS.html",
+							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-AWS.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "<script async src=\"https://www.googletagmanager.com/gtag/js?id=AW-17896727800\"></script>",
+							"otherinfo": ""
+						},
+						{
+							"id": "65",
+							"uri": "https://klbrs.es/analisis-vulnerabilidades-red.html",
+							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-red.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "<script async src=\"https://www.googletagmanager.com/gtag/js?id=AW-17896727800\"></script>",
+							"otherinfo": ""
+						},
+						{
+							"id": "68",
+							"uri": "https://klbrs.es/analisis-vulnerabilidades-web.html",
+							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-web.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "<script async src=\"https://www.googletagmanager.com/gtag/js?id=AW-17896727800\"></script>",
+							"otherinfo": ""
+						},
+						{
+							"id": "91",
+							"uri": "https://klbrs.es/concienciacion-de-seguridad.html",
+							"nodeName": "https:\/\/klbrs.es\/concienciacion-de-seguridad.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "<script async src=\"https://www.googletagmanager.com/gtag/js?id=AW-17896727800\"></script>",
+							"otherinfo": ""
+						},
+						{
+							"id": "106",
+							"uri": "https://klbrs.es/hacking-etico.html",
+							"nodeName": "https:\/\/klbrs.es\/hacking-etico.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "<script async src=\"https://www.googletagmanager.com/gtag/js?id=AW-17896727800\"></script>",
+							"otherinfo": ""
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "<p>Provide a valid integrity attribute to the tag.</p>",
+					"otherinfo": "",
+					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity</p>",
+					"cweid": "345",
+					"wascid": "15",
+					"sourceid": "78"
+				},
+				{
+					"pluginid": "10017",
+					"alertRef": "10017",
+					"alert": "Cross-Domain JavaScript Source File Inclusion",
+					"name": "Cross-Domain JavaScript Source File Inclusion",
+					"riskcode": "1",
+					"confidence": "2",
+					"riskdesc": "Low (Medium)",
+					"desc": "<p>The page includes one or more script files from a third-party domain.</p>",
+					"instances":[ 
+						{
+							"id": "78",
+							"uri": "https://klbrs.es/analisis-vulnerabilidades-AWS.html",
+							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-AWS.html",
+							"method": "GET",
+							"param": "https://www.googletagmanager.com/gtag/js?id=AW-17896727800",
+							"attack": "",
+							"evidence": "<script async src=\"https://www.googletagmanager.com/gtag/js?id=AW-17896727800\"></script>",
+							"otherinfo": ""
+						},
+						{
+							"id": "49",
+							"uri": "https://klbrs.es/analisis-vulnerabilidades-red.html",
+							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-red.html",
+							"method": "GET",
+							"param": "https://www.googletagmanager.com/gtag/js?id=AW-17896727800",
+							"attack": "",
+							"evidence": "<script async src=\"https://www.googletagmanager.com/gtag/js?id=AW-17896727800\"></script>",
+							"otherinfo": ""
+						},
+						{
+							"id": "63",
+							"uri": "https://klbrs.es/analisis-vulnerabilidades-web.html",
+							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-web.html",
+							"method": "GET",
+							"param": "https://www.googletagmanager.com/gtag/js?id=AW-17896727800",
+							"attack": "",
+							"evidence": "<script async src=\"https://www.googletagmanager.com/gtag/js?id=AW-17896727800\"></script>",
+							"otherinfo": ""
+						},
+						{
+							"id": "80",
+							"uri": "https://klbrs.es/concienciacion-de-seguridad.html",
+							"nodeName": "https:\/\/klbrs.es\/concienciacion-de-seguridad.html",
+							"method": "GET",
+							"param": "https://www.googletagmanager.com/gtag/js?id=AW-17896727800",
+							"attack": "",
+							"evidence": "<script async src=\"https://www.googletagmanager.com/gtag/js?id=AW-17896727800\"></script>",
+							"otherinfo": ""
+						},
+						{
+							"id": "102",
+							"uri": "https://klbrs.es/contacto.html",
+							"nodeName": "https:\/\/klbrs.es\/contacto.html",
+							"method": "GET",
+							"param": "https://challenges.cloudflare.com/turnstile/v0/api.js",
+							"attack": "",
+							"evidence": "<script src=\"https://challenges.cloudflare.com/turnstile/v0/api.js\" async defer></script>",
+							"otherinfo": ""
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "<p>Ensure JavaScript source files are loaded from only trusted sources, and the sources can't be controlled by end users of the application.</p>",
+					"otherinfo": "",
+					"reference": "",
+					"cweid": "829",
+					"wascid": "15",
+					"sourceid": "78"
+				},
+				{
+					"pluginid": "90004",
+					"alertRef": "90004-2",
+					"alert": "Cross-Origin-Embedder-Policy Header Missing or Invalid",
+					"name": "Cross-Origin-Embedder-Policy Header Missing or Invalid",
+					"riskcode": "1",
+					"confidence": "2",
+					"riskdesc": "Low (Medium)",
+					"desc": "<p>Cross-Origin-Embedder-Policy header is a response header that prevents a document from loading any cross-origin resources that don't explicitly grant the document permission (using CORP or CORS).</p>",
+					"instances":[ 
+						{
+							"id": "8",
+							"uri": "https://klbrs.es",
+							"nodeName": "https:\/\/klbrs.es",
+							"method": "GET",
+							"param": "Cross-Origin-Embedder-Policy",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "44",
+							"uri": "https://klbrs.es/",
+							"nodeName": "https:\/\/klbrs.es\/",
+							"method": "GET",
+							"param": "Cross-Origin-Embedder-Policy",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "56",
+							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
+							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"method": "GET",
+							"param": "Cross-Origin-Embedder-Policy",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "3",
+					"systemic": false,
+					"solution": "<p>Ensure that the application/web server sets the Cross-Origin-Embedder-Policy header appropriately, and that it sets the Cross-Origin-Embedder-Policy header to 'require-corp' for documents.</p><p>If possible, ensure that the end user uses a standards-compliant and modern web browser that supports the Cross-Origin-Embedder-Policy header (https://caniuse.com/mdn-http_headers_cross-origin-embedder-policy).</p>",
+					"otherinfo": "",
+					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Embedder-Policy</p>",
+					"cweid": "693",
+					"wascid": "14",
+					"sourceid": "1"
+				},
+				{
+					"pluginid": "90004",
+					"alertRef": "90004-3",
+					"alert": "Cross-Origin-Opener-Policy Header Missing or Invalid",
+					"name": "Cross-Origin-Opener-Policy Header Missing or Invalid",
+					"riskcode": "1",
+					"confidence": "2",
+					"riskdesc": "Low (Medium)",
+					"desc": "<p>Cross-Origin-Opener-Policy header is a response header that allows a site to control if others included documents share the same browsing context. Sharing the same browsing context with untrusted documents might lead to data leak.</p>",
+					"instances":[ 
+						{
+							"id": "9",
+							"uri": "https://klbrs.es",
+							"nodeName": "https:\/\/klbrs.es",
+							"method": "GET",
+							"param": "Cross-Origin-Opener-Policy",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "45",
+							"uri": "https://klbrs.es/",
+							"nodeName": "https:\/\/klbrs.es\/",
+							"method": "GET",
+							"param": "Cross-Origin-Opener-Policy",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "57",
+							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
+							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"method": "GET",
+							"param": "Cross-Origin-Opener-Policy",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "3",
+					"systemic": false,
+					"solution": "<p>Ensure that the application/web server sets the Cross-Origin-Opener-Policy header appropriately, and that it sets the Cross-Origin-Opener-Policy header to 'same-origin' for documents.</p><p>'same-origin-allow-popups' is considered as less secured and should be avoided.</p><p>If possible, ensure that the end user uses a standards-compliant and modern web browser that supports the Cross-Origin-Opener-Policy header (https://caniuse.com/mdn-http_headers_cross-origin-opener-policy).</p>",
+					"otherinfo": "",
+					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Opener-Policy</p>",
+					"cweid": "693",
+					"wascid": "14",
+					"sourceid": "1"
+				},
+				{
+					"pluginid": "90004",
+					"alertRef": "90004-1",
+					"alert": "Cross-Origin-Resource-Policy Header Missing or Invalid",
+					"name": "Cross-Origin-Resource-Policy Header Missing or Invalid",
+					"riskcode": "1",
+					"confidence": "2",
+					"riskdesc": "Low (Medium)",
+					"desc": "<p>Cross-Origin-Resource-Policy header is an opt-in header designed to counter side-channels attacks like Spectre. Resource should be specifically set as shareable amongst different origins.</p>",
+					"instances":[ 
+						{
+							"id": "7",
+							"uri": "https://klbrs.es",
+							"nodeName": "https:\/\/klbrs.es",
+							"method": "GET",
+							"param": "Cross-Origin-Resource-Policy",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "43",
+							"uri": "https://klbrs.es/",
+							"nodeName": "https:\/\/klbrs.es\/",
+							"method": "GET",
+							"param": "Cross-Origin-Resource-Policy",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "55",
+							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
+							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"method": "GET",
+							"param": "Cross-Origin-Resource-Policy",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "3",
+					"systemic": false,
+					"solution": "<p>Ensure that the application/web server sets the Cross-Origin-Resource-Policy header appropriately, and that it sets the Cross-Origin-Resource-Policy header to 'same-origin' for all web pages.</p><p>'same-site' is considered as less secured and should be avoided.</p><p>If resources must be shared, set the header to 'cross-origin'.</p><p>If possible, ensure that the end user uses a standards-compliant and modern web browser that supports the Cross-Origin-Resource-Policy header (https://caniuse.com/mdn-http_headers_cross-origin-resource-policy).</p>",
+					"otherinfo": "",
+					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Embedder-Policy</p>",
+					"cweid": "693",
+					"wascid": "14",
+					"sourceid": "1"
+				},
+				{
+					"pluginid": "10063",
+					"alertRef": "10063-1",
+					"alert": "Permissions Policy Header Not Set",
+					"name": "Permissions Policy Header Not Set",
+					"riskcode": "1",
+					"confidence": "2",
+					"riskdesc": "Low (Medium)",
+					"desc": "<p>Permissions Policy Header is an added layer of security that helps to restrict from unauthorized access or usage of browser/client features by web resources. This policy ensures the user privacy by limiting or specifying the features of the browsers can be used by the web resources. Permissions Policy provides a set of standard HTTP headers that allow website owners to limit which features of browsers can be used by the page such as camera, microphone, location, full screen etc.</p>",
+					"instances":[ 
+						{
+							"id": "6",
+							"uri": "https://klbrs.es",
+							"nodeName": "https:\/\/klbrs.es",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "42",
+							"uri": "https://klbrs.es/",
+							"nodeName": "https:\/\/klbrs.es\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "53",
+							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
+							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "17",
+							"uri": "https://klbrs.es/robots.txt",
+							"nodeName": "https:\/\/klbrs.es\/robots.txt",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "19",
+							"uri": "https://klbrs.es/sitemap.xml",
+							"nodeName": "https:\/\/klbrs.es\/sitemap.xml",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "<p>Ensure that your web server, application server, load balancer, etc. is configured to set the Permissions-Policy header.</p>",
+					"otherinfo": "",
+					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Permissions-Policy</p><p>https://developer.chrome.com/blog/feature-policy/</p><p>https://scotthelme.co.uk/a-new-security-header-feature-policy/</p><p>https://w3c.github.io/webappsec-feature-policy/</p><p>https://www.smashingmagazine.com/2018/12/feature-policy/</p>",
+					"cweid": "693",
+					"wascid": "15",
+					"sourceid": "1"
+				},
+				{
+					"pluginid": "10035",
+					"alertRef": "10035-1",
+					"alert": "Strict-Transport-Security Header Not Set",
+					"name": "Strict-Transport-Security Header Not Set",
+					"riskcode": "1",
+					"confidence": "3",
+					"riskdesc": "Low (High)",
+					"desc": "<p>HTTP Strict Transport Security (HSTS) is a web security policy mechanism whereby a web server declares that complying user agents (such as a web browser) are to interact with it using only secure HTTPS connections (i.e. HTTP layered over TLS/SSL). HSTS is an IETF standards track protocol and is specified in RFC 6797.</p>",
+					"instances":[ 
+						{
+							"id": "3",
+							"uri": "https://klbrs.es",
+							"nodeName": "https:\/\/klbrs.es",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "35",
+							"uri": "https://klbrs.es/",
+							"nodeName": "https:\/\/klbrs.es\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "46",
+							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
+							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "15",
+							"uri": "https://klbrs.es/robots.txt",
+							"nodeName": "https:\/\/klbrs.es\/robots.txt",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "14",
+							"uri": "https://klbrs.es/sitemap.xml",
+							"nodeName": "https:\/\/klbrs.es\/sitemap.xml",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "<p>Ensure that your web server, application server, load balancer, etc. is configured to enforce Strict-Transport-Security.</p>",
+					"otherinfo": "",
+					"reference": "<p>https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Strict_Transport_Security_Cheat_Sheet.html</p><p>https://owasp.org/www-community/Security_Headers</p><p>https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security</p><p>https://caniuse.com/stricttransportsecurity</p><p>https://datatracker.ietf.org/doc/html/rfc6797</p>",
+					"cweid": "319",
+					"wascid": "15",
+					"sourceid": "1"
+				},
+				{
+					"pluginid": "10021",
+					"alertRef": "10021",
+					"alert": "X-Content-Type-Options Header Missing",
+					"name": "X-Content-Type-Options Header Missing",
+					"riskcode": "1",
+					"confidence": "2",
+					"riskdesc": "Low (Medium)",
+					"desc": "<p>The Anti-MIME-Sniffing header X-Content-Type-Options was not set to 'nosniff'. This allows older versions of Internet Explorer and Chrome to perform MIME-sniffing on the response body, potentially causing the response body to be interpreted and displayed as a content type other than the declared content type. Current (early 2014) and legacy versions of Firefox will use the declared content type (if one is set), rather than performing MIME-sniffing.</p>",
+					"instances":[ 
+						{
+							"id": "4",
+							"uri": "https://klbrs.es",
+							"nodeName": "https:\/\/klbrs.es",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "36",
+							"uri": "https://klbrs.es/",
+							"nodeName": "https:\/\/klbrs.es\/",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "69",
+							"uri": "https://klbrs.es/analisis-vulnerabilidades-web.html",
+							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-web.html",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "51",
+							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
+							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "58",
+							"uri": "https://klbrs.es/pruebas-de-penetracion.html",
+							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion.html",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "<p>Ensure that the application/web server sets the Content-Type header appropriately, and that it sets the X-Content-Type-Options header to 'nosniff' for all web pages.</p><p>If possible, ensure that the end user uses a standards-compliant and modern web browser that does not perform MIME-sniffing at all, or that can be directed by the web application/web server to not perform MIME-sniffing.</p>",
+					"otherinfo": "<p>This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.</p><p>At \"High\" threshold this scan rule will not alert on client or server error responses.</p>",
+					"reference": "<p>https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/compatibility/gg622941(v=vs.85)</p><p>https://owasp.org/www-community/Security_Headers</p>",
+					"cweid": "693",
+					"wascid": "15",
+					"sourceid": "1"
+				},
+				{
+					"pluginid": "10027",
+					"alertRef": "10027",
+					"alert": "Information Disclosure - Suspicious Comments",
+					"name": "Information Disclosure - Suspicious Comments",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>The response appears to contain suspicious comments which may help an attacker.</p>",
+					"instances":[ 
+						{
+							"id": "113",
+							"uri": "https://klbrs.es/assets/js/util.js",
+							"nodeName": "https:\/\/klbrs.es\/assets\/js\/util.js",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "ented list of links from a nav. Meant for us",
+							"otherinfo": "The following pattern was used: \\bFROM\\b and was detected 3 times, the first in likely comment: \"/**\r\n\t * Generate an indented list of links from a nav. Meant for use with panel().\r\n\t * @return {jQuery} jQuery object.\r\n\t */\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "112",
+							"uri": "https://klbrs.es/assets/js/util.js",
+							"nodeName": "https:\/\/klbrs.es\/assets\/js\/util.js",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "{object} userConfig User config.\r\n\t * @retur",
+							"otherinfo": "The following pattern was used: \\bUSER\\b and was detected in likely comment: \"/**\r\n\t * Panel-ify an element.\r\n\t * @param {object} userConfig User config.\r\n\t * @return {jQuery} jQuery object.\r\n\t */\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "118",
+							"uri": "https://klbrs.es/en/aws-vulnerability-assessment.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/aws-vulnerability-assessment.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABO",
+							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "120",
+							"uri": "https://klbrs.es/en/contact.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/contact.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABO",
+							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "119",
+							"uri": "https://klbrs.es/en/cybersecurity-training.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/cybersecurity-training.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABO",
+							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "107",
+							"uri": "https://klbrs.es/en/index.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/index.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABO",
+							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "121",
+							"uri": "https://klbrs.es/en/network-pentest.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/network-pentest.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABO",
+							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "115",
+							"uri": "https://klbrs.es/en/network-vulnerability-assessment.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/network-vulnerability-assessment.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABO",
+							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "114",
+							"uri": "https://klbrs.es/en/penetration-testing.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/penetration-testing.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABO",
+							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "117",
+							"uri": "https://klbrs.es/en/security-awareness.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/security-awareness.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABO",
+							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "111",
+							"uri": "https://klbrs.es/en/web-pentest.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/web-pentest.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABO",
+							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "116",
+							"uri": "https://klbrs.es/en/web-vulnerability-assessment.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/web-vulnerability-assessment.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABO",
+							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
+						}
+					],
+					"count": "12",
+					"systemic": false,
+					"solution": "<p>Remove all comments that return information that may help an attacker and fix any underlying problems they refer to.</p>",
+					"otherinfo": "<p>The following pattern was used: \\bFROM\\b and was detected 3 times, the first in likely comment: \"/**</p><p>\t * Generate an indented list of links from a nav. Meant for use with panel().</p><p>\t * @return {jQuery} jQuery object.</p><p>\t */\", see evidence field for the suspicious comment/snippet.</p>",
+					"reference": "",
+					"cweid": "615",
+					"wascid": "13",
+					"sourceid": "175"
+				},
+				{
+					"pluginid": "10109",
+					"alertRef": "10109",
+					"alert": "Modern Web Application",
+					"name": "Modern Web Application",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>The application appears to be a modern web application. If you need to explore it automatically then the Ajax Spider may well be more effective than the standard one.</p>",
+					"instances":[ 
+						{
+							"id": "2",
+							"uri": "https://klbrs.es",
+							"nodeName": "https:\/\/klbrs.es",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "<a href=\"#\" class=\"submenu\">Servicios</a>",
+							"otherinfo": "Links have been found that do not have traditional href attributes, which is an indication that this is a modern web application."
+						},
+						{
+							"id": "34",
+							"uri": "https://klbrs.es/",
+							"nodeName": "https:\/\/klbrs.es\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "<a href=\"#\" class=\"submenu\">Servicios</a>",
+							"otherinfo": "Links have been found that do not have traditional href attributes, which is an indication that this is a modern web application."
+						},
+						{
+							"id": "40",
+							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
+							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "<a href=\"#\" class=\"submenu\">Servicios</a>",
+							"otherinfo": "Links have been found that do not have traditional href attributes, which is an indication that this is a modern web application."
+						},
+						{
+							"id": "12",
+							"uri": "https://klbrs.es/robots.txt",
+							"nodeName": "https:\/\/klbrs.es\/robots.txt",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "<a href=\"#\" class=\"submenu\">Servicios</a>",
+							"otherinfo": "Links have been found that do not have traditional href attributes, which is an indication that this is a modern web application."
+						},
+						{
+							"id": "13",
+							"uri": "https://klbrs.es/sitemap.xml",
+							"nodeName": "https:\/\/klbrs.es\/sitemap.xml",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "<a href=\"#\" class=\"submenu\">Servicios</a>",
+							"otherinfo": "Links have been found that do not have traditional href attributes, which is an indication that this is a modern web application."
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "<p>This is an informational alert and so no changes are required.</p>",
+					"otherinfo": "<p>Links have been found that do not have traditional href attributes, which is an indication that this is a modern web application.</p>",
+					"reference": "",
+					"cweid": "-1",
+					"wascid": "-1",
+					"sourceid": "1"
+				},
+				{
+					"pluginid": "10015",
+					"alertRef": "10015",
+					"alert": "Re-examine Cache-control Directives",
+					"name": "Re-examine Cache-control Directives",
+					"riskcode": "0",
+					"confidence": "1",
+					"riskdesc": "Informational (Low)",
+					"desc": "<p>The cache-control header has not been set properly or is missing, allowing the browser and proxies to cache content. For static assets like css, js, or image files this might be intended, however, the resources should be reviewed to ensure that no sensitive content will be cached.</p>",
+					"instances":[ 
+						{
+							"id": "0",
+							"uri": "https://klbrs.es",
+							"nodeName": "https:\/\/klbrs.es",
+							"method": "GET",
+							"param": "cache-control",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "22",
+							"uri": "https://klbrs.es/",
+							"nodeName": "https:\/\/klbrs.es\/",
+							"method": "GET",
+							"param": "cache-control",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "47",
+							"uri": "https://klbrs.es/analisis-vulnerabilidades-red.html",
+							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-red.html",
+							"method": "GET",
+							"param": "cache-control",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "25",
+							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
+							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"method": "GET",
+							"param": "cache-control",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "24",
+							"uri": "https://klbrs.es/pruebas-de-penetracion.html",
+							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion.html",
+							"method": "GET",
+							"param": "cache-control",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "<p>For secure content, ensure the cache-control HTTP header is set with \"no-cache, no-store, must-revalidate\". If an asset should be cached consider setting the directives \"public, max-age, immutable\".</p>",
+					"otherinfo": "",
+					"reference": "<p>https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#web-content-caching</p><p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control</p><p>https://grayduck.mn/2021/09/13/cache-control-recommendations/</p>",
+					"cweid": "525",
+					"wascid": "13",
+					"sourceid": "1"
+				},
+				{
+					"pluginid": "10049",
+					"alertRef": "10049-3",
+					"alert": "Storable and Cacheable Content",
+					"name": "Storable and Cacheable Content",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>The response contents are storable by caching components such as proxy servers, and may be retrieved directly from the cache, rather than from the origin server by the caching servers, in response to similar requests from other users. If the response data is sensitive, personal or user-specific, this may result in sensitive information being leaked. In some cases, this may even result in a user gaining complete control of the session of another user, depending on the configuration of the caching components in use in their environment. This is primarily an issue where \"shared\" caching servers such as \"proxy\" caches are configured on the local network. This configuration is typically found in corporate or educational environments, for instance.</p>",
+					"instances":[ 
+						{
+							"id": "5",
+							"uri": "https://klbrs.es",
+							"nodeName": "https:\/\/klbrs.es",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
+						},
+						{
+							"id": "37",
+							"uri": "https://klbrs.es/",
+							"nodeName": "https:\/\/klbrs.es\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
+						},
+						{
+							"id": "52",
+							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
+							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
+						},
+						{
+							"id": "16",
+							"uri": "https://klbrs.es/robots.txt",
+							"nodeName": "https:\/\/klbrs.es\/robots.txt",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
+						},
+						{
+							"id": "18",
+							"uri": "https://klbrs.es/sitemap.xml",
+							"nodeName": "https:\/\/klbrs.es\/sitemap.xml",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "<p>Validate that the response does not contain sensitive, personal or user-specific information. If it does, consider the use of the following HTTP response headers, to limit, or prevent the content being stored and retrieved from the cache by another user:</p><p>Cache-Control: no-cache, no-store, must-revalidate, private</p><p>Pragma: no-cache</p><p>Expires: 0</p><p>This configuration directs both HTTP 1.0 and HTTP 1.1 compliant caching servers to not store the response, and to not retrieve the response (without validation) from the cache, in response to a similar request.</p>",
+					"otherinfo": "<p>In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234.</p>",
+					"reference": "<p>https://datatracker.ietf.org/doc/html/rfc7234</p><p>https://datatracker.ietf.org/doc/html/rfc7231</p><p>https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html</p>",
+					"cweid": "524",
+					"wascid": "13",
+					"sourceid": "1"
+				}
+			]
+		}
+	],
+	"sequences":[
+	]
+
+}

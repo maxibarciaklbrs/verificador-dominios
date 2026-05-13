@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}Verificación DNS TXT - klbrs.es{% endblock %}
+
+{% block content %}
+<div class="success-card">
+    <div class="success-icon">🔐</div>
+    <h1>Verificación DNS TXT</h1>
+    {% if ya_existia %}
+    <div class="info-box warning" style="background:#fff3cd; color:#856404;">
+        ℹ️ Ya tienes un código de verificación activo. Usa el mismo código que te enviamos anteriormente.
+    </div>
+    {% endif %}
+    <p>Hemos enviado un email a <strong>{{ email }}</strong> con instrucciones.</p>
+    
+    <div class="codigo-box">
+        <strong>Código de verificación:</strong><br>
+        {{ codigo }}
+    </div>
+    
+    <div class="info-box">
+        <strong>📝 ¿Qué debes hacer?</strong><br><br>
+        1. Inicia sesión en el panel DNS de <strong>{{ dominio }}</strong><br>
+        2. Crea un nuevo registro <strong>TXT</strong><br>
+        3. En el campo "Valor", pega EXACTAMENTE el código de arriba<br>
+        4. Guarda los cambios<br>
+        5. Espera 5-10 minutos a que se propague<br>
+        6. Haz clic en <strong>"Validar DNS"</strong>
+    </div>
+    
+    <div class="button-group">
+        <button onclick="validarDNS()" id="btnValidar" class="btn-validate">🔍 Validar DNS</button>
+        <div class="dropdown">
+            <button id="btnPago" class="btn-payment" disabled style="opacity:0.6">💰 Sección Pago ▼</button>
+            <div class="dropdown-content">
+                <a onclick="mostrarMensaje('realizar-pago')">💳 Realizar Pago</a>
+                <a onclick="mostrarMensaje('pago-completado')">✅ Pago Completado</a>
+            </div>
+        </div>
+    </div>
+    
+    <div id="resultado" class="resultado-box"></div>
+    <a href="/" class="btn-back">← Volver al inicio</a>
+    
+    <div id="seccionAuditoria" class="auditoria-section" style="display:none;">
+        <h3>🛡️ Análisis de Vulnerabilidades</h3>
+        <p style="font-size: 14px; color: #666;">Tu pago ha desbloqueado el escaneo de seguridad para <strong>{{ dominio }}</strong></p>
+        <button onclick="iniciarAuditoria()" id="btnAuditoria" class="btn-auditar">🔍 Iniciar Escaneo de Vulnerabilidades</button>
+        <div id="estadoEscaneo" style="display:none; margin: 15px 0; padding: 10px; background: #f0f7ff; border-radius: 8px; color: #4a5568; font-size: 14px;"></div>
+        <div id="resumenEscaneo" style="display:none; background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin: 15px 0; text-align: left;">
+            <h4 style="margin-bottom: 15px; text-align: center;">📊 Resultados del Análisis para <strong>{{ dominio }}</strong></h4>
+            <div class="resumen-grid">
+                <div class="resumen-item resumen-criticas"><span style="font-size:24px;">🔴</span><br><strong>Críticas:</strong> <span id="countCriticas">-</span></div>
+                <div class="resumen-item resumen-medias"><span style="font-size:24px;">🟠</span><br><strong>Medias:</strong> <span id="countMedias">-</span></div>
+                <div class="resumen-item resumen-bajas"><span style="font-size:24px;">🟢</span><br><strong>Bajas:</strong> <span id="countBajas">-</span></div>
+                <div class="resumen-item" style="background:#e2e8f0;"><span style="font-size:24px;">📋</span><br><strong>Total:</strong> <span id="countTotal">-</span></div>
+            </div>
+            <h5 style="margin:15px 0 10px 0;">🔍 Principales hallazgos:</h5>
+            <ul id="listaAlertas" style="font-size:13px; color:#4a5568; margin-bottom:15px; padding-left:20px;"></ul>
+            <div style="text-align:center;"><a id="linkDescarga" href="#" target="_blank" class="btn-descargar">📥 Descargar Reporte Completo (HTML)</a></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Variables globales inyectadas desde el backend
+    const email = "{{ email }}";
+    const codigo = "{{ codigo }}";
+    const dominio = "{{ dominio }}";
+    let verificado = false;
+    let escaneoActivo = false;
+
+    // ========== FUNCIONES DE VERIFICACIÓN DNS ==========
+    function habilitarBotonPago() {
+        const btnPago = document.getElementById('btnPago');
+        if (btnPago) {
+            btnPago.disabled = false;
+            btnPago.style.opacity = '1';
+        }
+    }
+
+    async function validarDNS() {
+        const btn = document.getElementById('btnValidar');
+        const resultadoDiv = document.getElementById('resultado');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Verificando DNS...';
+        resultadoDiv.style.display = 'block';
+        resultadoDiv.className = 'resultado-box resultado-warning';
+        resultadoDiv.innerHTML = '🔍 Verificando registro TXT en ' + dominio + '...';
+        try {
+            const response = await fetch('/validar-dns', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, codigo, dominio })
+            });
+            const data = await response.json();
+            if (data.exitoso) {
+                verificado = true;
+                resultadoDiv.className = 'resultado-box resultado-success';
+                resultadoDiv.innerHTML = '✅ ' + data.mensaje;
+                habilitarBotonPago();
+            } else {
+                resultadoDiv.className = 'resultado-box resultado-error';
+                resultadoDiv.innerHTML = '❌ ' + data.mensaje + '<br><br>💡 Espera unos minutos a que se propague el DNS y vuelve a intentar.';
+            }
+        } catch (error) {
+            resultadoDiv.className = 'resultado-box resultado-error';
+            resultadoDiv.innerHTML = '❌ Error de conexión: ' + error;
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '🔍 Validar DNS';
+        }
+    }
+
+    // ========== FUNCIONES DE PAGO ==========
+    function mostrarMensaje(opcion) {
+        const resultadoDiv = document.getElementById('resultado');
+        resultadoDiv.style.display = 'block';
+        if (opcion === 'realizar-pago') {
+            resultadoDiv.className = 'resultado-box resultado-info';
+            resultadoDiv.innerHTML = `
+                <strong>💰 EN DESARROLLO</strong><br><br>
+                La pasarela de pago está en fase de integración.<br><br>
+                <strong>Próximamente disponibles:</strong><br>
+                • Stripe (Tarjetas de crédito/débito)<br>
+                • PayPal<br>
+                • Transferencia bancaria<br><br>
+                <em>Por ahora, usa la opción "Pago Completado" para simular el proceso.</em>
+            `;
+        } else if (opcion === 'pago-completado') {
+            resultadoDiv.className = 'resultado-box resultado-warning';
+            resultadoDiv.innerHTML = '<span class="loading-spinner"></span> Procesando pago, enviando notificaciones...';
+            fetch('/webhook-pago', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ codigo, monto: 50.00 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.exitoso) {
+                    resultadoDiv.className = 'resultado-box resultado-success';
+                    resultadoDiv.innerHTML = `
+                        <strong>✅ PAGO CONFIRMADO</strong><br><br>
+                        ${data.mensaje}<br><br>
+                        📧 Se ha enviado confirmación al administrador.<br>
+                        📱 Notificación enviada por Telegram.<br>
+                        🛡️ Se ha desbloqueado el <strong>Análisis de Vulnerabilidades</strong> más abajo.<br><br>
+                        <em>Gracias por tu pago.</em>
+                    `;
+                    const opcionPago = document.querySelector('.dropdown-content a:last-child');
+                    if (opcionPago) {
+                        opcionPago.style.opacity = '0.5';
+                        opcionPago.style.pointerEvents = 'none';
+                    }
+                    habilitarAuditoria();
+                } else {
+                    resultadoDiv.className = 'resultado-box resultado-error';
+                    resultadoDiv.innerHTML = `<strong>❌ ERROR</strong><br><br>${data.mensaje}<br><br>Por favor, contacta con soporte.`;
+                }
+            })
+            .catch(error => {
+                resultadoDiv.className = 'resultado-box resultado-error';
+                resultadoDiv.innerHTML = `<strong>❌ ERROR DE CONEXIÓN</strong><br><br>No se pudo procesar el pago: ${error}<br>Intenta nuevamente.`;
+            });
+        }
+    }
+
+    // ========== FUNCIONES DE AUDITORÍA ==========
+    function habilitarAuditoria() {
+        const sec = document.getElementById('seccionAuditoria');
+        if (sec) {
+            sec.style.display = 'block';
+            sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    async function iniciarAuditoria() {
+        if (escaneoActivo) {
+            alert('⚠️ Ya hay un escaneo en curso. Espera a que termine.');
+            return;
+        }
+        const btn = document.getElementById('btnAuditoria');
+        const estadoDiv = document.getElementById('estadoEscaneo');
+        const resumenDiv = document.getElementById('resumenEscaneo');
+        escaneoActivo = true;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Iniciando escaneo...';
+        estadoDiv.style.display = 'block';
+        resumenDiv.style.display = 'none';
+        estadoDiv.innerHTML = '⏳ Preparando contenedor ZAP...';
+        try {
+            const response = await fetch('/lanzar-escaneo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, dominio })
+            });
+            const data = await response.json();
+            if (data.exitoso && data.cache) {
+                mostrarResumen(data.resumen, data.url_completa);
+                btn.disabled = false;
+                btn.innerHTML = '🔄 Re-escanear';
+                escaneoActivo = false;
+            } else if (data.exitoso && data.escaneando) {
+                await esperarEscaneo();
+                btn.disabled = false;
+                btn.innerHTML = '🔄 Re-escanear';
+            } else {
+                estadoDiv.innerHTML = '❌ Error al iniciar el escaneo.';
+                btn.disabled = false;
+                btn.innerHTML = '🔍 Iniciar Escaneo de Vulnerabilidades';
+                escaneoActivo = false;
+            }
+        } catch (error) {
+            estadoDiv.innerHTML = '❌ Error de conexión: ' + error;
+            btn.disabled = false;
+            btn.innerHTML = '🔍 Iniciar Escaneo de Vulnerabilidades';
+            escaneoActivo = false;
+        }
+    }
+
+    async function esperarEscaneo() {
+        const estadoDiv = document.getElementById('estadoEscaneo');
+        let intentos = 0;
+        const maxIntentos = 30;
+        const mensajes = [
+            '🔍 Rastreando directorios y enlaces...',
+            '📡 Analizando cabeceras HTTP de seguridad...',
+            '🛡️ Verificando configuraciones del servidor...',
+            '🔐 Comprobando cookies y políticas de seguridad...',
+            '📊 Generando informe de vulnerabilidades...'
+        ];
+        while (intentos < maxIntentos) {
+            await new Promise(r => setTimeout(r, 10000));
+            intentos++;
+            const idx = Math.floor(intentos / 2) % mensajes.length;
+            estadoDiv.innerHTML = mensajes[idx] + '<br><small>⏱️ Esperando ' + (intentos * 10) + ' segundos...</small>';
+            try {
+                const response = await fetch('/estado-escaneo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                if (data.completado) {
+                    mostrarResumen(data.resumen, data.url_completa);
+                    escaneoActivo = false;
+                    return;
+                }
+            } catch (e) { console.error(e); }
+        }
+        estadoDiv.innerHTML = '⚠️ El escaneo está tardando más de lo esperado. Recarga la página en unos minutos.';
+        escaneoActivo = false;
+    }
+
+    function mostrarResumen(resumen, urlCompleta) {
+        document.getElementById('estadoEscaneo').style.display = 'none';
+        const resumenDiv = document.getElementById('resumenEscaneo');
+        resumenDiv.style.display = 'block';
+        document.getElementById('countCriticas').innerText = resumen.criticas;
+        document.getElementById('countMedias').innerText = resumen.medias;
+        document.getElementById('countBajas').innerText = resumen.bajas;
+        document.getElementById('countTotal').innerText = resumen.total;
+        const lista = document.getElementById('listaAlertas');
+        if (resumen.detalles.length > 0) {
+            lista.innerHTML = resumen.detalles.map(d => {
+                const icono = d.riesgo === '3' ? '🔴' : d.riesgo === '2' ? '🟠' : d.riesgo === '1' ? '🟢' : 'ℹ️';
+                return `<li>${icono} <strong>${d.nombre}</strong></li>`;
+            }).join('');
+        } else {
+            lista.innerHTML = '<li>✅ No se detectaron vulnerabilidades.</li>';
+        }
+        document.getElementById('linkDescarga').href = urlCompleta;
+        resumenDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+</script>
+{% endblock %}

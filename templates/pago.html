@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Pago - klbrs.es{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="badge" style="display:inline-block; background:#ffc107; color:#856404; padding:5px 12px; border-radius:20px; font-size:12px; margin-bottom:15px;">💰 MODO DESARROLLO - PAGO SIMULADO</div>
+    <h1>💰 Sección de Pago</h1>
+    <p>Dominio verificado correctamente ✅</p>
+    <div class="monto" style="font-size:48px; color:#28a745; font-weight:bold; margin:20px 0;">$50 USD</div>
+    <div class="codigo" style="background:#2d3748; color:#68d391; font-family:monospace; padding:15px; border-radius:8px; margin:20px 0; word-break:break-all;">
+        <strong>Código de referencia:</strong><br>{{ codigo }}
+    </div>
+    <h3>Datos para transferencia</h3>
+    <p>Banco: [TU BANCO]<br>Cuenta: [TU CUENTA]<br>Titular: [TU NOMBRE]<br>Concepto: <strong>{{ codigo }}</strong></p>
+    <hr style="margin:20px 0; border:none; border-top:1px solid #e0e0e0;">
+    <h3>Opciones de pago</h3>
+    <div class="button-group" style="display:flex; gap:15px; margin:25px 0; flex-wrap:wrap; justify-content:center;">
+        <button onclick="realizarPago()" id="btnPagar" class="btn-pagar" style="background:linear-gradient(135deg,#28a745 0%,#20c997 100%);">💳 Realizar Pago</button>
+        <button onclick="simularPagoCompletado()" id="btnCompletado" class="btn-completado" style="background:linear-gradient(135deg,#17a2b8 0%,#138496 100%);">✅ Pago Completado</button>
+    </div>
+    <div id="resultado" class="resultado-box"></div>
+    <a href="/" class="btn-back" style="background:#6c757d; display:inline-block; margin-top:10px;">← Volver al inicio</a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const codigo = "{{ codigo }}";
+    let temporizadorActivo = false;
+    let intervalId = null;
+    let tiempoRestante = 0;
+
+    function mostrarResultado(tipo, mensaje) {
+        const div = document.getElementById('resultado');
+        div.style.display = 'block';
+        div.className = 'resultado-box resultado-' + tipo;
+        div.innerHTML = mensaje;
+    }
+
+    async function realizarPago() {
+        const btn = document.getElementById('btnPagar');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Redirigiendo...';
+        mostrarResultado('info', '🔄 Redirigiendo a la pasarela de pago... (Modo desarrollo)');
+        setTimeout(() => {
+            mostrarResultado('info', '<strong>💰 EN DESARROLLO</strong><br><br>Usa el botón <strong>"Pago Completado"</strong> para simular.');
+            btn.disabled = false;
+            btn.innerHTML = '💳 Realizar Pago';
+        }, 2000);
+    }
+
+    async function simularPagoCompletado() {
+        if (temporizadorActivo) { mostrarResultado('warning', '⚠️ Ya hay un proceso en curso.'); return; }
+        const btnC = document.getElementById('btnCompletado');
+        const btnP = document.getElementById('btnPagar');
+        tiempoRestante = 2;
+        temporizadorActivo = true;
+        btnC.disabled = true;
+        btnP.disabled = true;
+        mostrarResultado('info', '<strong>🔄 Verificando pago...</strong><br>⏱️ Tiempo restante: <span id="contador">2</span> segundos');
+        intervalId = setInterval(() => {
+            tiempoRestante--;
+            const c = document.getElementById('contador');
+            if (c) c.textContent = tiempoRestante;
+            if (tiempoRestante <= 0) { clearInterval(intervalId); finalizarPago(); }
+        }, 1000);
+    }
+
+    async function finalizarPago() {
+        mostrarResultado('info', '<span class="loading-spinner"></span> Enviando notificación...');
+        try {
+            const r = await fetch('/webhook-pago', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ codigo })
+            });
+            const d = await r.json();
+            if (d.exitoso) {
+                mostrarResultado('success', '<strong>✅ PAGO CONFIRMADO</strong><br><br>' + d.mensaje);
+                document.getElementById('btnCompletado').disabled = true;
+                document.getElementById('btnPagar').disabled = true;
+            } else {
+                mostrarResultado('warning', '<strong>⚠️ Error:</strong> ' + d.mensaje);
+                document.getElementById('btnCompletado').disabled = false;
+                document.getElementById('btnPagar').disabled = false;
+            }
+        } catch(e) {
+            mostrarResultado('warning', '<strong>⚠️ Error de conexión</strong>');
+        } finally {
+            temporizadorActivo = false;
+        }
+    }
+</script>
+{% endblock %}
