@@ -1,6 +1,3 @@
-cd ~/Estudios/Python/Proyectos/AutoVulnerabilities
-
-cat > README.md << 'EOF'
 #  AutoVulnerabilities - Sistema de Verificación y Auditoría de Dominios
 
 Sistema automatizado para verificación de propiedad de dominios y análisis de vulnerabilidades.
