@@ -5,14 +5,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Ruta de la base de datos
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "verificaciones.db")
+DB_PATH = os.path.join(os.path.dirname(__file__), "..", "verificaciones.db")
 
 
 def init_db():
     """Inicializa la base de datos"""
+    # Asegurar que el directorio existe
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+    
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,6 +32,7 @@ def init_db():
             fecha_pago DATETIME
         )
     ''')
+    
     conn.commit()
     conn.close()
     logger.info("✅ Base de datos SQLite inicializada")

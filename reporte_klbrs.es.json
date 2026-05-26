@@ -1,8 +1,8 @@
 {
 	"@programName": "ZAP",
 	"@version": "2.17.0",
-	"@generated": "Wed, 6 May 2026 18:27:55",
-	"created": "2026-05-06T18:27:55.596007865Z",
+	"@generated": "Tue, 26 May 2026 12:34:17",
+	"created": "2026-05-26T12:34:17.729451982Z",
 	"insights":[
 		{
 			"level": "Info",
@@ -58,7 +58,7 @@
 			"site": "https://klbrs.es",
 			"key": "insight.endpoint.ctype.image/svg+xml",
 			"description": "Percentage of endpoints with content type image/svg+xml",
-			"statistic": "1"
+			"statistic": "2"
 		},
 		{
 			"level": "Info",
@@ -129,7 +129,7 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "23",
+							"id": "19",
 							"uri": "https://klbrs.es/",
 							"nodeName": "https:\/\/klbrs.es\/",
 							"method": "GET",
@@ -139,9 +139,9 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "26",
-							"uri": "https://klbrs.es/pruebas-de-penetracion.html",
-							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion.html",
+							"id": "25",
+							"uri": "https://klbrs.es/apoyo-seguridad-fintech.html",
+							"nodeName": "https:\/\/klbrs.es\/apoyo-seguridad-fintech.html",
 							"method": "GET",
 							"param": "",
 							"attack": "",
@@ -189,7 +189,7 @@
 					"desc": "<p>The integrity attribute is missing on a script or link tag served by an external server. The integrity tag prevents an attacker who have gained access to this server from injecting a malicious content.</p>",
 					"instances":[ 
 						{
-							"id": "83",
+							"id": "107",
 							"uri": "https://klbrs.es/analisis-vulnerabilidades-AWS.html",
 							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-AWS.html",
 							"method": "GET",
@@ -199,7 +199,7 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "65",
+							"id": "110",
 							"uri": "https://klbrs.es/analisis-vulnerabilidades-red.html",
 							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-red.html",
 							"method": "GET",
@@ -209,7 +209,7 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "68",
+							"id": "106",
 							"uri": "https://klbrs.es/analisis-vulnerabilidades-web.html",
 							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-web.html",
 							"method": "GET",
@@ -219,7 +219,7 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "91",
+							"id": "111",
 							"uri": "https://klbrs.es/concienciacion-de-seguridad.html",
 							"nodeName": "https:\/\/klbrs.es\/concienciacion-de-seguridad.html",
 							"method": "GET",
@@ -229,13 +229,13 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "106",
-							"uri": "https://klbrs.es/hacking-etico.html",
-							"nodeName": "https:\/\/klbrs.es\/hacking-etico.html",
+							"id": "91",
+							"uri": "https://klbrs.es/politica-de-cookies.html",
+							"nodeName": "https:\/\/klbrs.es\/politica-de-cookies.html",
 							"method": "GET",
 							"param": "",
 							"attack": "",
-							"evidence": "<script async src=\"https://www.googletagmanager.com/gtag/js?id=AW-17896727800\"></script>",
+							"evidence": "<script async src=\"https://www.googletagmanager.com/gtag/js?id=G-8KDXTV9J8K\"></script>",
 							"otherinfo": ""
 						}
 					],
@@ -246,7 +246,7 @@
 					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity</p>",
 					"cweid": "345",
 					"wascid": "15",
-					"sourceid": "78"
+					"sourceid": "112"
 				},
 				{
 					"pluginid": "10017",
@@ -259,7 +259,7 @@
 					"desc": "<p>The page includes one or more script files from a third-party domain.</p>",
 					"instances":[ 
 						{
-							"id": "78",
+							"id": "103",
 							"uri": "https://klbrs.es/analisis-vulnerabilidades-AWS.html",
 							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-AWS.html",
 							"method": "GET",
@@ -269,17 +269,7 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "49",
-							"uri": "https://klbrs.es/analisis-vulnerabilidades-red.html",
-							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-red.html",
-							"method": "GET",
-							"param": "https://www.googletagmanager.com/gtag/js?id=AW-17896727800",
-							"attack": "",
-							"evidence": "<script async src=\"https://www.googletagmanager.com/gtag/js?id=AW-17896727800\"></script>",
-							"otherinfo": ""
-						},
-						{
-							"id": "63",
+							"id": "102",
 							"uri": "https://klbrs.es/analisis-vulnerabilidades-web.html",
 							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-web.html",
 							"method": "GET",
@@ -289,7 +279,7 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "80",
+							"id": "108",
 							"uri": "https://klbrs.es/concienciacion-de-seguridad.html",
 							"nodeName": "https:\/\/klbrs.es\/concienciacion-de-seguridad.html",
 							"method": "GET",
@@ -299,13 +289,23 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "102",
+							"id": "104",
 							"uri": "https://klbrs.es/contacto.html",
 							"nodeName": "https:\/\/klbrs.es\/contacto.html",
 							"method": "GET",
 							"param": "https://challenges.cloudflare.com/turnstile/v0/api.js",
 							"attack": "",
 							"evidence": "<script src=\"https://challenges.cloudflare.com/turnstile/v0/api.js\" async defer></script>",
+							"otherinfo": ""
+						},
+						{
+							"id": "66",
+							"uri": "https://klbrs.es/politica-de-cookies.html",
+							"nodeName": "https:\/\/klbrs.es\/politica-de-cookies.html",
+							"method": "GET",
+							"param": "https://www.googletagmanager.com/gtag/js?id=G-8KDXTV9J8K",
+							"attack": "",
+							"evidence": "<script async src=\"https://www.googletagmanager.com/gtag/js?id=G-8KDXTV9J8K\"></script>",
 							"otherinfo": ""
 						}
 					],
@@ -316,7 +316,7 @@
 					"reference": "",
 					"cweid": "829",
 					"wascid": "15",
-					"sourceid": "78"
+					"sourceid": "112"
 				},
 				{
 					"pluginid": "90004",
@@ -349,9 +349,19 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "56",
-							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
-							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"id": "71",
+							"uri": "https://klbrs.es/acerca.html",
+							"nodeName": "https:\/\/klbrs.es\/acerca.html",
+							"method": "GET",
+							"param": "Cross-Origin-Embedder-Policy",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "81",
+							"uri": "https://klbrs.es/apoyo-seguridad-fintech.html",
+							"nodeName": "https:\/\/klbrs.es\/apoyo-seguridad-fintech.html",
 							"method": "GET",
 							"param": "Cross-Origin-Embedder-Policy",
 							"attack": "",
@@ -359,7 +369,7 @@
 							"otherinfo": ""
 						}
 					],
-					"count": "3",
+					"count": "4",
 					"systemic": false,
 					"solution": "<p>Ensure that the application/web server sets the Cross-Origin-Embedder-Policy header appropriately, and that it sets the Cross-Origin-Embedder-Policy header to 'require-corp' for documents.</p><p>If possible, ensure that the end user uses a standards-compliant and modern web browser that supports the Cross-Origin-Embedder-Policy header (https://caniuse.com/mdn-http_headers_cross-origin-embedder-policy).</p>",
 					"otherinfo": "",
@@ -399,9 +409,19 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "57",
-							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
-							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"id": "73",
+							"uri": "https://klbrs.es/acerca.html",
+							"nodeName": "https:\/\/klbrs.es\/acerca.html",
+							"method": "GET",
+							"param": "Cross-Origin-Opener-Policy",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "82",
+							"uri": "https://klbrs.es/apoyo-seguridad-fintech.html",
+							"nodeName": "https:\/\/klbrs.es\/apoyo-seguridad-fintech.html",
 							"method": "GET",
 							"param": "Cross-Origin-Opener-Policy",
 							"attack": "",
@@ -409,7 +429,7 @@
 							"otherinfo": ""
 						}
 					],
-					"count": "3",
+					"count": "4",
 					"systemic": false,
 					"solution": "<p>Ensure that the application/web server sets the Cross-Origin-Opener-Policy header appropriately, and that it sets the Cross-Origin-Opener-Policy header to 'same-origin' for documents.</p><p>'same-origin-allow-popups' is considered as less secured and should be avoided.</p><p>If possible, ensure that the end user uses a standards-compliant and modern web browser that supports the Cross-Origin-Opener-Policy header (https://caniuse.com/mdn-http_headers_cross-origin-opener-policy).</p>",
 					"otherinfo": "",
@@ -449,9 +469,19 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "55",
-							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
-							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"id": "70",
+							"uri": "https://klbrs.es/acerca.html",
+							"nodeName": "https:\/\/klbrs.es\/acerca.html",
+							"method": "GET",
+							"param": "Cross-Origin-Resource-Policy",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "78",
+							"uri": "https://klbrs.es/apoyo-seguridad-fintech.html",
+							"nodeName": "https:\/\/klbrs.es\/apoyo-seguridad-fintech.html",
 							"method": "GET",
 							"param": "Cross-Origin-Resource-Policy",
 							"attack": "",
@@ -459,7 +489,7 @@
 							"otherinfo": ""
 						}
 					],
-					"count": "3",
+					"count": "4",
 					"systemic": false,
 					"solution": "<p>Ensure that the application/web server sets the Cross-Origin-Resource-Policy header appropriately, and that it sets the Cross-Origin-Resource-Policy header to 'same-origin' for all web pages.</p><p>'same-site' is considered as less secured and should be avoided.</p><p>If resources must be shared, set the header to 'cross-origin'.</p><p>If possible, ensure that the end user uses a standards-compliant and modern web browser that supports the Cross-Origin-Resource-Policy header (https://caniuse.com/mdn-http_headers_cross-origin-resource-policy).</p>",
 					"otherinfo": "",
@@ -499,9 +529,9 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "53",
-							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
-							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"id": "69",
+							"uri": "https://klbrs.es/acerca.html",
+							"nodeName": "https:\/\/klbrs.es\/acerca.html",
 							"method": "GET",
 							"param": "",
 							"attack": "",
@@ -509,7 +539,7 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "17",
+							"id": "21",
 							"uri": "https://klbrs.es/robots.txt",
 							"nodeName": "https:\/\/klbrs.es\/robots.txt",
 							"method": "GET",
@@ -519,7 +549,7 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "19",
+							"id": "17",
 							"uri": "https://klbrs.es/sitemap.xml",
 							"nodeName": "https:\/\/klbrs.es\/sitemap.xml",
 							"method": "GET",
@@ -559,7 +589,7 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "35",
+							"id": "38",
 							"uri": "https://klbrs.es/",
 							"nodeName": "https:\/\/klbrs.es\/",
 							"method": "GET",
@@ -569,9 +599,9 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "46",
-							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
-							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"id": "49",
+							"uri": "https://klbrs.es/apoyo-seguridad-fintech.html",
+							"nodeName": "https:\/\/klbrs.es\/apoyo-seguridad-fintech.html",
 							"method": "GET",
 							"param": "",
 							"attack": "",
@@ -629,7 +659,7 @@
 							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
 						},
 						{
-							"id": "36",
+							"id": "40",
 							"uri": "https://klbrs.es/",
 							"nodeName": "https:\/\/klbrs.es\/",
 							"method": "GET",
@@ -639,9 +669,9 @@
 							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
 						},
 						{
-							"id": "69",
-							"uri": "https://klbrs.es/analisis-vulnerabilidades-web.html",
-							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-web.html",
+							"id": "61",
+							"uri": "https://klbrs.es/acerca.html",
+							"nodeName": "https:\/\/klbrs.es\/acerca.html",
 							"method": "GET",
 							"param": "x-content-type-options",
 							"attack": "",
@@ -649,9 +679,9 @@
 							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
 						},
 						{
-							"id": "51",
-							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
-							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"id": "64",
+							"uri": "https://klbrs.es/apoyo-seguridad-fintech.html",
+							"nodeName": "https:\/\/klbrs.es\/apoyo-seguridad-fintech.html",
 							"method": "GET",
 							"param": "x-content-type-options",
 							"attack": "",
@@ -659,9 +689,9 @@
 							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
 						},
 						{
-							"id": "58",
-							"uri": "https://klbrs.es/pruebas-de-penetracion.html",
-							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion.html",
+							"id": "72",
+							"uri": "https://klbrs.es/terminos-de-uso.html",
+							"nodeName": "https:\/\/klbrs.es\/terminos-de-uso.html",
 							"method": "GET",
 							"param": "x-content-type-options",
 							"attack": "",
@@ -689,7 +719,7 @@
 					"desc": "<p>The response appears to contain suspicious comments which may help an attacker.</p>",
 					"instances":[ 
 						{
-							"id": "113",
+							"id": "125",
 							"uri": "https://klbrs.es/assets/js/util.js",
 							"nodeName": "https:\/\/klbrs.es\/assets\/js\/util.js",
 							"method": "GET",
@@ -699,7 +729,7 @@
 							"otherinfo": "The following pattern was used: \\bFROM\\b and was detected 3 times, the first in likely comment: \"/**\r\n\t * Generate an indented list of links from a nav. Meant for use with panel().\r\n\t * @return {jQuery} jQuery object.\r\n\t */\", see evidence field for the suspicious comment/snippet."
 						},
 						{
-							"id": "112",
+							"id": "124",
 							"uri": "https://klbrs.es/assets/js/util.js",
 							"nodeName": "https:\/\/klbrs.es\/assets\/js\/util.js",
 							"method": "GET",
@@ -709,9 +739,19 @@
 							"otherinfo": "The following pattern was used: \\bUSER\\b and was detected in likely comment: \"/**\r\n\t * Panel-ify an element.\r\n\t * @param {object} userConfig User config.\r\n\t * @return {jQuery} jQuery object.\r\n\t */\", see evidence field for the suspicious comment/snippet."
 						},
 						{
-							"id": "118",
-							"uri": "https://klbrs.es/en/aws-vulnerability-assessment.html",
-							"nodeName": "https:\/\/klbrs.es\/en\/aws-vulnerability-assessment.html",
+							"id": "115",
+							"uri": "https://klbrs.es/en/about.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/about.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABO",
+							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "121",
+							"uri": "https://klbrs.es/en/api-pentest.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/api-pentest.html",
 							"method": "GET",
 							"param": "",
 							"attack": "",
@@ -720,8 +760,8 @@
 						},
 						{
 							"id": "120",
-							"uri": "https://klbrs.es/en/contact.html",
-							"nodeName": "https:\/\/klbrs.es\/en\/contact.html",
+							"uri": "https://klbrs.es/en/aws-pentest.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/aws-pentest.html",
 							"method": "GET",
 							"param": "",
 							"attack": "",
@@ -729,9 +769,9 @@
 							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
 						},
 						{
-							"id": "119",
-							"uri": "https://klbrs.es/en/cybersecurity-training.html",
-							"nodeName": "https:\/\/klbrs.es\/en\/cybersecurity-training.html",
+							"id": "116",
+							"uri": "https://klbrs.es/en/fintech-security-support.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/fintech-security-support.html",
 							"method": "GET",
 							"param": "",
 							"attack": "",
@@ -739,7 +779,7 @@
 							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
 						},
 						{
-							"id": "107",
+							"id": "32",
 							"uri": "https://klbrs.es/en/index.html",
 							"nodeName": "https:\/\/klbrs.es\/en\/index.html",
 							"method": "GET",
@@ -749,7 +789,17 @@
 							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
 						},
 						{
-							"id": "121",
+							"id": "122",
+							"uri": "https://klbrs.es/en/mobile-pentest.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/mobile-pentest.html",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABO",
+							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "118",
 							"uri": "https://klbrs.es/en/network-pentest.html",
 							"nodeName": "https:\/\/klbrs.es\/en\/network-pentest.html",
 							"method": "GET",
@@ -759,7 +809,7 @@
 							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
 						},
 						{
-							"id": "115",
+							"id": "123",
 							"uri": "https://klbrs.es/en/network-vulnerability-assessment.html",
 							"nodeName": "https:\/\/klbrs.es\/en\/network-vulnerability-assessment.html",
 							"method": "GET",
@@ -769,7 +819,7 @@
 							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
 						},
 						{
-							"id": "114",
+							"id": "117",
 							"uri": "https://klbrs.es/en/penetration-testing.html",
 							"nodeName": "https:\/\/klbrs.es\/en\/penetration-testing.html",
 							"method": "GET",
@@ -779,29 +829,9 @@
 							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
 						},
 						{
-							"id": "117",
-							"uri": "https://klbrs.es/en/security-awareness.html",
-							"nodeName": "https:\/\/klbrs.es\/en\/security-awareness.html",
-							"method": "GET",
-							"param": "",
-							"attack": "",
-							"evidence": "PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABO",
-							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
-						},
-						{
-							"id": "111",
+							"id": "119",
 							"uri": "https://klbrs.es/en/web-pentest.html",
 							"nodeName": "https:\/\/klbrs.es\/en\/web-pentest.html",
-							"method": "GET",
-							"param": "",
-							"attack": "",
-							"evidence": "PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABO",
-							"otherinfo": "The following pattern was used: \\bTODO\\b and was detected in likely comment: \"<!-- Footer PENDIENTE MODIFICAR TODO EL FOOTER DESDE ABOUT.HHTML. HASTA ENTONCES PODR\u00C1 SER MODIFICADO EN LAS DEM\u00C1S P\u00C1GINAS.-->\", see evidence field for the suspicious comment/snippet."
-						},
-						{
-							"id": "116",
-							"uri": "https://klbrs.es/en/web-vulnerability-assessment.html",
-							"nodeName": "https:\/\/klbrs.es\/en\/web-vulnerability-assessment.html",
 							"method": "GET",
 							"param": "",
 							"attack": "",
@@ -816,7 +846,7 @@
 					"reference": "",
 					"cweid": "615",
 					"wascid": "13",
-					"sourceid": "175"
+					"sourceid": "165"
 				},
 				{
 					"pluginid": "10109",
@@ -849,13 +879,13 @@
 							"otherinfo": "Links have been found that do not have traditional href attributes, which is an indication that this is a modern web application."
 						},
 						{
-							"id": "40",
-							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
-							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"id": "33",
+							"uri": "https://klbrs.es/en/index.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/index.html",
 							"method": "GET",
 							"param": "",
 							"attack": "",
-							"evidence": "<a href=\"#\" class=\"submenu\">Servicios</a>",
+							"evidence": "<a href=\"#\" class=\"submenu\">Services</a>",
 							"otherinfo": "Links have been found that do not have traditional href attributes, which is an indication that this is a modern web application."
 						},
 						{
@@ -909,7 +939,7 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "22",
+							"id": "18",
 							"uri": "https://klbrs.es/",
 							"nodeName": "https:\/\/klbrs.es\/",
 							"method": "GET",
@@ -919,19 +949,9 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "47",
-							"uri": "https://klbrs.es/analisis-vulnerabilidades-red.html",
-							"nodeName": "https:\/\/klbrs.es\/analisis-vulnerabilidades-red.html",
-							"method": "GET",
-							"param": "cache-control",
-							"attack": "",
-							"evidence": "",
-							"otherinfo": ""
-						},
-						{
-							"id": "25",
-							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
-							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"id": "26",
+							"uri": "https://klbrs.es/acerca.html",
+							"nodeName": "https:\/\/klbrs.es\/acerca.html",
 							"method": "GET",
 							"param": "cache-control",
 							"attack": "",
@@ -940,8 +960,18 @@
 						},
 						{
 							"id": "24",
-							"uri": "https://klbrs.es/pruebas-de-penetracion.html",
-							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion.html",
+							"uri": "https://klbrs.es/apoyo-seguridad-fintech.html",
+							"nodeName": "https:\/\/klbrs.es\/apoyo-seguridad-fintech.html",
+							"method": "GET",
+							"param": "cache-control",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "27",
+							"uri": "https://klbrs.es/en/index.html",
+							"nodeName": "https:\/\/klbrs.es\/en\/index.html",
 							"method": "GET",
 							"param": "cache-control",
 							"attack": "",
@@ -979,7 +1009,7 @@
 							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
 						},
 						{
-							"id": "37",
+							"id": "41",
 							"uri": "https://klbrs.es/",
 							"nodeName": "https:\/\/klbrs.es\/",
 							"method": "GET",
@@ -989,9 +1019,9 @@
 							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
 						},
 						{
-							"id": "52",
-							"uri": "https://klbrs.es/pruebas-de-penetracion-web.html",
-							"nodeName": "https:\/\/klbrs.es\/pruebas-de-penetracion-web.html",
+							"id": "68",
+							"uri": "https://klbrs.es/acerca.html",
+							"nodeName": "https:\/\/klbrs.es\/acerca.html",
 							"method": "GET",
 							"param": "",
 							"attack": "",
@@ -999,7 +1029,7 @@
 							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
 						},
 						{
-							"id": "16",
+							"id": "20",
 							"uri": "https://klbrs.es/robots.txt",
 							"nodeName": "https:\/\/klbrs.es\/robots.txt",
 							"method": "GET",
@@ -1009,7 +1039,7 @@
 							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
 						},
 						{
-							"id": "18",
+							"id": "16",
 							"uri": "https://klbrs.es/sitemap.xml",
 							"nodeName": "https:\/\/klbrs.es\/sitemap.xml",
 							"method": "GET",

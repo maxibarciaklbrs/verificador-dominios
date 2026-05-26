@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Request, BackgroundTasks
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
-from app.config import ARCHIVO_PENDIENTES
+from app.models import obtener_usuario_por_codigo, marcar_pagado
 from app.services.telegram_service import enviar_notificacion_pago_telegram
-import json
 from datetime import datetime
+import logging
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("/pago/{codigo}", response_class=HTMLResponse)
@@ -168,42 +169,31 @@ async def webhook_pago(request: Request):
     codigo = data.get("codigo")
     monto = data.get("monto", 50.00)
     
-    try:
-        with open(ARCHIVO_PENDIENTES, "r") as f:
-            pendientes = json.load(f)
-    except:
-        pendientes = {}
+    # Buscar usuario por código
+    usuario = obtener_usuario_por_codigo(codigo)
     
-    usuario_encontrado = None
-    email_encontrado = None
-    
-    for email, datos in pendientes.items():
-        if datos.get("codigo") == codigo:
-            usuario_encontrado = datos
-            email_encontrado = email
-            break
-    
-    if not usuario_encontrado:
+    if not usuario:
         return {"exitoso": False, "mensaje": "Código no encontrado"}
     
-    if usuario_encontrado.get("pagado", False):
+    if usuario.get("pagado", False):
         return {"exitoso": True, "mensaje": "Este pago ya había sido confirmado anteriormente"}
     
-    pendientes[email_encontrado]["pagado"] = True
-    pendientes[email_encontrado]["fecha_pago"] = datetime.now().isoformat()
+    email = usuario.get("email")
     
-    with open(ARCHIVO_PENDIENTES, "w") as f:
-        json.dump(pendientes, f, indent=2, ensure_ascii=False)
+    # Marcar como pagado en SQLite
+    marcar_pagado(email)
     
+    # Registrar en archivo de pagos
     with open("pagos_registrados.txt", "a", encoding="utf-8") as f:
-        f.write(f"{datetime.now().isoformat()} | {email_encontrado} | {usuario_encontrado['nombre']} | {usuario_encontrado['apellido']} | CODIGO: {codigo} | MONTO: ${monto}\n")
+        f.write(f"{datetime.now().isoformat()} | {email} | {usuario['nombre']} | {usuario['apellido']} | CODIGO: {codigo} | MONTO: ${monto}\n")
+    
+    logger.info(f"💰 Pago registrado: {email} - ${monto}")
     
     # Notificación Telegram
     try:
-        from app.services.telegram_service import enviar_notificacion_pago_telegram
-        enviar_notificacion_pago_telegram(usuario_encontrado, codigo, monto)
+        enviar_notificacion_pago_telegram(usuario, codigo, monto)
     except Exception as e:
-        print(f"Error enviando Telegram: {e}")
+        logger.error(f"Error enviando Telegram: {e}")
     
     return {
         "exitoso": True,

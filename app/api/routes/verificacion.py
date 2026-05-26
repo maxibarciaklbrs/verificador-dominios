@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Request
 from app.services import verificar_dns_txt
-from app.config import ARCHIVO_PENDIENTES
-import json
-from datetime import datetime
+from app.models import marcar_verificado
+import logging
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.post("/validar-dns")
@@ -17,16 +17,8 @@ async def validar_dns(request: Request):
     resultado = verificar_dns_txt(dominio, codigo)
     
     if resultado["existe"]:
-        try:
-            with open(ARCHIVO_PENDIENTES, "r") as f:
-                pendientes = json.load(f)
-            if email in pendientes:
-                pendientes[email]["verificado"] = True
-                pendientes[email]["fecha_verificacion"] = datetime.now().isoformat()
-                with open(ARCHIVO_PENDIENTES, "w") as f:
-                    json.dump(pendientes, f, indent=2, ensure_ascii=False)
-        except:
-            pass
+        marcar_verificado(email)
+        logger.info(f"✅ Dominio verificado: {email}")
         
         return {
             "exitoso": True,
@@ -44,13 +36,10 @@ async def estado_verificacion(request: Request):
     data = await request.json()
     email = data.get("email")
     
-    try:
-        with open(ARCHIVO_PENDIENTES, "r") as f:
-            pendientes = json.load(f)
-        if email in pendientes and pendientes[email].get("verificado", False):
-            return {"verificado": True}
-    except:
-        pass
+    from app.models import obtener_usuario
+    usuario = obtener_usuario(email)
+    
+    if usuario and usuario.get("verificado", False):
+        return {"verificado": True}
     
     return {"verificado": False}
-
