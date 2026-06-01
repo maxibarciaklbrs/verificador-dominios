@@ -57,7 +57,8 @@ async def submit_form(
     background_tasks: BackgroundTasks,
     nombre: str = Form(...),
     apellido: str = Form(...),
-    email: str = Form(...)
+    email: str = Form(...),
+    telefono: str = Form(...)
 ):
     es_valido, mensaje = email_es_corporativo(email)
     
@@ -74,6 +75,6 @@ async def submit_form(
     
     # Guardar en archivo de log (opcional, solo para auditoría)
     with open("registros.txt", "a", encoding="utf-8") as f:
-        f.write(f"{datetime.now()} | {nombre} {apellido} | {email} | CODIGO: {codigo_verificacion} | {'NUEVO' if es_nuevo else 'REUTILIZADO'}\n")
+        f.write(f"{datetime.now()} | {nombre} {apellido} | {email} | {telefono} | CODIGO: {codigo_verificacion} | {'NUEVO' if es_nuevo else 'REUTILIZADO'}\n")
     
-    return generar_html_confirmacion(nombre, apellido, email, codigo_verificacion, es_nuevo)
+    return generar_html_confirmacion(nombre, apellido, email, telefono, codigo_verificacion, es_nuevo)

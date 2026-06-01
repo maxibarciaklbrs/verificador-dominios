@@ -29,10 +29,19 @@
 			    		<input type="email" name="email" required placeholder="nombre@tuempresa.com">
 				</div>
 				<div class="form-group">
-			    		<label>Teléfono <span class="required">*</span></label>
-			    		<input type="email" name="email" required placeholder="Tu teléfono">
+			    		<label>Teléfono</label>
+			    		<input type="text" name="telefono" placeholder="Tu teléfono">
 				</div>
-				<button type="submit">Enviar</button>
+				<div class="col-12">
+					<ul class="actions">
+					  	<li>
+					    		<input type="submit" id="SUBMIT_BTN" value="Enviar" class="primary">
+					  	</li>
+					  	<li>
+					    		<input type="reset" id="RESET_BTN" value="Limpiar">
+					  	</li>
+					</ul>
+			     	</div>
 		    	</form>
 		    	<div id="loading" class="loading">Validando email...</div>
 		    	<div class="warning">No se permiten emails gratuitos. Usa tu email corporativo.</div>

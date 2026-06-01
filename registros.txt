@@ -11,3 +11,5 @@
 2026-05-26 15:48:43.847184 | maxibarcia maxibarcia | maxibarcia@klbrs.es | CODIGO: asiNGORJGNFa_SDOGMJr94-ASITJNENTOsdinrtW5sO | REUTILIZADO
 2026-05-26 15:51:35.246837 | admin admin | admin@klbrs.es | CODIGO: asiNGORJGNFa_SDOGMJr94-ASITJNENTOsdinrtW5sO | REUTILIZADO
 2026-05-26 16:12:26.144620 | maxibarcia maxibarcia | maxibarcia@klbrs.es | CODIGO: asiNGORJGNFa_SDOGMJr94-ASITJNENTOsdinrtW5sO | REUTILIZADO
+2026-06-01 12:32:16.642853 | qqerh qerhqerh q | maxibarcia@klbrs.es | 666808151 | CODIGO: bulF2g-xl28vgbg1vMhvXRLYuZIwIGtgIpEenznCGQ1 | NUEVO
+2026-06-01 12:32:24.037854 | qqerh qerhqerh q | maxibarcia@klbrs.es | 666808151125 | CODIGO: yNDk1OzAVbDAsURxBuVz5h5DIU3DGLS3QKeXg-khGsz | NUEVO
