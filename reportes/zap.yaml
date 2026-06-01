@@ -3,8 +3,7 @@ env:
   - excludePaths: []
     name: baseline
     urls:
-    - https://luismoreno.io/es/
-    - https://luismoreno.io/
+    - https://klbrs.es
   parameters:
     failOnError: true
     progressToStdout: false
@@ -15,7 +14,7 @@ jobs:
   type: passiveScan-config
 - parameters:
     maxDuration: 1
-    url: https://luismoreno.io/
+    url: https://klbrs.es
   type: spider
 - parameters:
     maxDuration: 0
@@ -25,10 +24,3 @@ jobs:
     summaryFile: /home/zap/zap_out.json
   rules: []
   type: outputSummary
-- parameters:
-    reportDescription: ''
-    reportDir: /zap/wrk/
-    reportFile: reporte_luismoreno.html
-    reportTitle: ZAP Scanning Report
-    template: traditional-html
-  type: report
