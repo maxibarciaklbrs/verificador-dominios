@@ -1,61 +1,117 @@
-{% extends "base.html" %}
-
-{% block title %}Registro Corporativo - klbrs.es{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Registro Corporativo - klbrs.es{%
+endblock %} {% block content %}
 <section id="main" class="wrapper">
-	<div class="inner">
-        	<header class="major">
-        		<h2>Registro Corporativo</h2>
-          		<p>Verifica tu dominio con registro TXT.</p>
-        	</header>
+  <div class="inner">
+    <header class="major">
+      <h2>Registro Corporativo</h2>
+      <p>Verifica tu dominio con registro TXT.</p>
+    </header>
 
-        <section>
-          <!-- Mensajes de estado -->
-          	<div id="FORM_NOTICE" class="box" style="display:none;"></div>
+    <div id="FORM_NOTICE" class="box" style="display: none"></div>
 
-		<div class="form-container">
-		    	<form id="registroForm" action="/submit" method="post">
-				<div class="form-group">
-			    		<label>Nombre <span class="required">*</span></label>
-			    		<input type="text" name="nombre" required placeholder="Tu nombre">
-				</div>
-				<div class="form-group">
-					<label>Apellidos <span class="required">*</span></label>
-					<input type="text" name="apellido" required placeholder="Tu apellido">
-				</div>
-				<div class="form-group">
-			    		<label>Email Corporativo <span class="required">*</span></label>
-			    		<input type="email" name="email" required placeholder="nombre@tuempresa.com">
-				</div>
-				<div class="form-group">
-			    		<label>Teléfono</label>
-			    		<input type="text" name="telefono" placeholder="Tu teléfono">
-				</div>
-				<div class="col-12">
-					<ul class="actions">
-					  	<li>
-					    		<input type="submit" id="SUBMIT_BTN" value="Enviar" class="primary">
-					  	</li>
-					  	<li>
-					    		<input type="reset" id="RESET_BTN" value="Limpiar">
-					  	</li>
-					</ul>
-			     	</div>
-		    	</form>
-		    	<div id="loading" class="loading">Validando email...</div>
-		    	<div class="warning">No se permiten emails gratuitos. Usa tu email corporativo.</div>
-		</div>
-	</section>
+    <div class="form-container">
+      <form id="registroForm" action="/submit" method="post">
+        <div class="form-group">
+          <label>Nombre <span class="required">*</span></label>
+          <input type="text" name="nombre" required placeholder="Tu nombre" />
+        </div>
+
+        <div class="form-group">
+          <label>Apellidos <span class="required">*</span></label>
+          <input
+            type="text"
+            name="apellido"
+            required
+            placeholder="Tu apellido"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Email Corporativo <span class="required">*</span></label>
+          <input
+            type="email"
+            name="email"
+            required
+            placeholder="nombre@tuempresa.com"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="text" name="telefono" placeholder="Tu teléfono" />
+        </div>
+
+        <!-- Turnstile -->
+        <div
+          class="cf-turnstile"
+          data-sitekey="0x4AAAAAADeKage-jC08EID-"
+          data-callback="onTurnstileSuccess"
+          data-expired-callback="onTurnstileExpired"
+          data-error-callback="onTurnstileError"
+        ></div>
+
+        <input type="hidden" name="turnstile_token" id="TURNSTILE_TOKEN" />
+
+        <div class="col-12">
+          <ul class="actions">
+            <li>
+              <input
+                type="submit"
+                id="SUBMIT_BTN"
+                value="Enviar"
+                class="primary"
+              />
+            </li>
+            <li>
+              <input type="reset" id="RESET_BTN" value="Limpiar" />
+            </li>
+          </ul>
+        </div>
+      </form>
+    </div>
+  </div>
 </section>
 
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-    document.getElementById('registroForm').addEventListener('submit', function(e) {
-        document.getElementById('loading').style.display = 'block';
-        document.querySelector('button').disabled = true;
+  document
+    .getElementById("registroForm")
+    .addEventListener("submit", function (e) {
+      document.getElementById("loading").style.display = "block";
+      document.querySelector("button").disabled = true;
     });
+</script>
+<script
+  src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+  async
+  defer
+></script>
+<script>
+  const FORM = document.getElementById("registroForm");
+  const SUBMIT_BTN = document.getElementById("SUBMIT_BTN");
+  const TURNSTILE_TOKEN = document.getElementById("TURNSTILE_TOKEN");
+
+  window.onTurnstileSuccess = function (token) {
+    TURNSTILE_TOKEN.value = token;
+  };
+
+  window.onTurnstileExpired = function () {
+    TURNSTILE_TOKEN.value = "";
+  };
+
+  window.onTurnstileError = function () {
+    TURNSTILE_TOKEN.value = "";
+  };
+
+  FORM.addEventListener("submit", function (e) {
+    if (!TURNSTILE_TOKEN.value) {
+      e.preventDefault();
+      alert("Completa el captcha antes de enviar.");
+      return;
+    }
+
+    SUBMIT_BTN.disabled = true;
+    SUBMIT_BTN.value = "Enviando...";
+  });
 </script>
 {% endblock %}

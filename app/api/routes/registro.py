@@ -13,7 +13,7 @@ from app.models import guardar_o_obtener_codigo
 from app.services.html_service import generar_html_confirmacion
 
 from datetime import datetime
-import logging
+import logging, requests
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -41,7 +41,23 @@ async def get_form(request: Request):
         }
     )
 
+# ==========================================================
+# Turnstile
+# ==========================================================
 
+TURNSTILE_SECRET = "0x4AAAAAADeKap4zAyPENr_eDwCCf84T8os"
+
+def verify_turnstile(token: str, ip: str):
+    r = requests.post(
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+        data={
+            "secret": TURNSTILE_SECRET,
+            "response": token,
+            "remoteip": ip
+        }
+    )
+    return r.json()
+    
 # ==========================================================
 # POST /submit
 # Procesa formulario
@@ -54,12 +70,26 @@ async def get_form(request: Request):
 
 async def submit_form(
 
+    request: Request,
     background_tasks: BackgroundTasks,
     nombre: str = Form(...),
     apellido: str = Form(...),
     email: str = Form(...),
-    telefono: str = Form(...)
-):
+    telefono: str = Form(...),
+    turnstile_token: str = Form(...)
+):  
+    result = verify_turnstile(turnstile_token, request.client.host)
+
+    if not result.get("success"):
+        return """
+        <html>
+        <body style="font-family:sans-serif;padding:40px;text-align:center;">
+            <h1>⛔ Error de verificación CAPTCHA</h1>
+            <p>Inténtalo de nuevo.</p>
+            <a href="/">Volver</a>
+        </body>
+        </html>
+    """
     es_valido, mensaje = email_es_corporativo(email)
     
     if not es_valido:
@@ -78,3 +108,4 @@ async def submit_form(
         f.write(f"{datetime.now()} | {nombre} {apellido} | {email} | {telefono} | CODIGO: {codigo_verificacion} | {'NUEVO' if es_nuevo else 'REUTILIZADO'}\n")
     
     return generar_html_confirmacion(nombre, apellido, email, telefono, codigo_verificacion, es_nuevo)
+
