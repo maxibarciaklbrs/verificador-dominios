@@ -4157,7 +4157,7 @@ body.landing {
   background: #ffffff;
   border-radius: 100%;
   color: #54d3cf;
-  content: url("images/logo.png");
+  content: url("../static/assets/images/logo.png");
   display: inline-block;
   font-size: 0.9em;
   height: 2em;
@@ -5326,4 +5326,15 @@ body.is-mobile #footer {
 
 .cookie-buttons button {
   margin: 10px;
+}
+
+.field-error {
+  display: block;
+  font-size: 0.85rem;
+  color: #d32f2f;
+  margin-bottom: 0.25em;
+}
+
+.input-error {
+  border-color: #d32f2f !important;
 }

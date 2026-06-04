@@ -1,7 +1,7 @@
 # app/services/html_service.py
 from datetime import datetime
 
-def generar_html_confirmacion(nombre: str, apellido: str, email: str, codigo: str, ya_existia: bool = False):
+def generar_html_confirmacion(nombre: str, apellido: str, email: str, telefono: str, codigo: str, ya_existia: bool = False):
     dominio = email.split('@')[1]
     
     mensaje_existente = ""
