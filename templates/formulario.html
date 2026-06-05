@@ -71,7 +71,31 @@ endblock %} {% block content %}
         ></div>
 
         <input type="hidden" name="turnstile_token" id="TURNSTILE_TOKEN" />
-
+        <!-- Aviso de privacidad -->
+        <div class="col-12">
+          <div class="privacy-wrapper">
+            <input
+              type="checkbox"
+              id="privacy_accept"
+              name="privacy_accept"
+              required
+            />
+            <label for="privacy_accept">
+              Conforme al RGPD y la LOPDGDD, KLBRS SECURITY SERVICES SL tratará
+              los datos facilitados con la finalidad de gestionar y atender su
+              solicitud. Para obtener más información acerca del tratamiento de
+              sus datos y ejercer sus derechos, visite nuestra: Política de
+              privacidad en:
+              <a
+                href="/politica-de-privacidad.html"
+                target="_blank"
+                rel="noopener"
+              >
+                Política de Privacidad </a
+              >.
+            </label>
+          </div>
+        </div>
         <div class="col-12">
           <ul class="actions">
             <li>

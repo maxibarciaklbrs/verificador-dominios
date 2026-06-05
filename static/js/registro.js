@@ -5,6 +5,7 @@
 const FORM = document.getElementById("registroForm");
 const SUBMIT_BTN = document.getElementById("SUBMIT_BTN");
 const TURNSTILE_TOKEN = document.getElementById("TURNSTILE_TOKEN");
+const privacyAccept = document.getElementById("privacy_accept");
 
 window.onTurnstileSuccess = function (token) {
   TURNSTILE_TOKEN.value = token;
@@ -124,7 +125,7 @@ function validateApellido() {
   }
 
   if (value.length > 120) {
-  setError(nombre, "Longitud máxima excedida.");
+  setError(apellido, "Longitud máxima excedida.");
   return false;
   }
 
@@ -201,7 +202,8 @@ function validateForm() {
     validateNombre() &&
     validateApellido() &&
     validateEmail() &&
-    validateTelefono();
+    validateTelefono() &&
+    privacyAccept.checked;
 
   submitBtn.disabled = !valid;
 
@@ -211,5 +213,5 @@ function validateForm() {
 [nombre, apellido, email, telefono].forEach((field) => {
   field.addEventListener("input", validateForm);
 });
-
+privacyAccept.addEventListener("change", validateForm);
 validateForm();

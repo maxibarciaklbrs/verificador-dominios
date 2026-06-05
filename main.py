@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.routes import registro, verificacion, pago, auditoria
+from app.api.routes import registro, verificacion, pago, auditoria, confirmacion
 from app.config import DIRECTORIO_REPORTES
 from fastapi.staticfiles import StaticFiles
 import os
@@ -11,6 +11,7 @@ app.include_router(registro)
 app.include_router(verificacion)
 app.include_router(pago)
 app.include_router(auditoria)
+app.include_router(confirmacion)
 
 # Crear directorios necesarios
 os.makedirs(DIRECTORIO_REPORTES, exist_ok=True)

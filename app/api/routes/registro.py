@@ -23,7 +23,6 @@ from app.services.email_service import (
 )
 
 from app.models import guardar_o_obtener_codigo
-from app.services.html_service import generar_html_confirmacion
 
 from datetime import datetime
 import logging
@@ -181,11 +180,16 @@ async def submit_form(
     # --------------------------
     # RESPUESTA
     # --------------------------
-    return generar_html_confirmacion(
-        nombre,
-        apellido,
-        email,
-        telefono,
-        codigo_verificacion,
-        es_nuevo
-    )
+    return templates.TemplateResponse(
+    "registro-confirmacion.html",
+    {
+        "request": request,
+        "nombre": nombre,
+        "apellido": apellido,
+        "email": email,
+        "telefono": telefono,
+        "codigo": codigo_verificacion,
+        "dominio": email.split("@")[1],
+        "ya_existia": not es_nuevo
+    }
+)
