@@ -1,0 +1,17 @@
+from fastapi import FastAPI
+from app.api.routes import registro, verificacion, pago, auditoria
+from app.config import DIRECTORIO_REPORTES
+import os
+
+app = FastAPI(title="Verificador DNS - klbrs.es", version="2.0.0")
+
+app.include_router(registro)
+app.include_router(verificacion)
+app.include_router(pago)
+app.include_router(auditoria)
+
+os.makedirs(DIRECTORIO_REPORTES, exist_ok=True)
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "version": "2.0.0"}
