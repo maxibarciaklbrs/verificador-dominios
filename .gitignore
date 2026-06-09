@@ -21,7 +21,6 @@ pagos_registrados.txt
 # REPORTES DE ESCANEO ZAP
 # ============================================
 reportes/
-*.html
 *.json
 !requirements.json
 reporte_*.html
