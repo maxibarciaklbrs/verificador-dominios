@@ -4,9 +4,9 @@
   </button>
 
   <div class="dropdown">
-    <button id="btnPago" class="button">Sección Pago ▼</button>
+    <button id="btnPago" class="button" onclick="togglePago()" style="display: none;">Sección Pago ▼</button>
 
-    <div>
+    <div id="menuPago" style="display: none;">
       <a onclick="mostrarMensaje('realizar-pago')" class="button"
         >💳 Realizar Pago</a
       >

@@ -252,3 +252,15 @@ function mostrarResumen(resumen, urlCompleta) {
 
   resumenDiv.scrollIntoView({ behavior: "smooth", block: "center" });
 }
+
+function togglePago() {
+  const menu = document.getElementById("menuPago");
+  const boton = document.getElementById("btnPago");
+
+  const abierto = menu.style.display === "block";
+
+  menu.style.display = abierto ? "none" : "block";
+  boton.textContent = abierto
+    ? "Sección Pago ▼"
+    : "Sección Pago ▲";
+}

@@ -5339,3 +5339,11 @@ body.is-mobile #footer {
   border-color: #d32f2f !important;
 }
 
+#menuPago {
+  margin-top: 10px;
+}
+
+#menuPago .button {
+  display: block;
+  margin-bottom: 8px;
+}
