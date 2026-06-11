@@ -1,0 +1,29 @@
+<section id="seccionAuditoria" class="box" style="display: none;">
+  <h3>Análisis de Vulnerabilidades</h3>
+
+  <p>
+    Tu pago ha desbloqueado el escaneo para
+    <strong>{{ email.split('@')[1] }}</strong>
+  </p>
+
+  <button onclick="iniciarAuditoria()" id="btnAuditoria" class="button">
+    Iniciar Escaneo
+  </button>
+
+  <div id="estadoEscaneo"></div>
+
+  <div id="resumenEscaneo">
+    <h4>Resultados</h4>
+
+    <div>
+      <div>🔴 Críticas: <span id="countCriticas"></span></div>
+      <div>🟠 Medias: <span id="countMedias"></span></div>
+      <div>🟢 Bajas: <span id="countBajas"></span></div>
+      <div>📋 Total: <span id="countTotal"></span></div>
+    </div>
+
+    <ul id="listaAlertas"></ul>
+
+    <a id="linkDescarga" href="#" class="button">Descargar Reporte </a>
+  </div>
+</section>

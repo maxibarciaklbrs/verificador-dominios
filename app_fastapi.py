@@ -1,14 +1,17 @@
 from fastapi import FastAPI
-from app.api.routes import registro, verificacion, pago, auditoria
+from app.api.routes import registro, verificacion, pago, auditoria, confirmacion
 from app.config import DIRECTORIO_REPORTES
+from fastapi.staticfiles import StaticFiles
 import os
 
 app = FastAPI(title="Verificador DNS - klbrs.es", version="2.0.0")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(registro)
 app.include_router(verificacion)
 app.include_router(pago)
 app.include_router(auditoria)
+app.include_router(confirmacion)
 
 os.makedirs(DIRECTORIO_REPORTES, exist_ok=True)
 

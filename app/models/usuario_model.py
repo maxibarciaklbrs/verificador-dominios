@@ -22,7 +22,7 @@ def guardar_pendientes(pendientes: dict) -> None:
         json.dump(pendientes, f, indent=2, ensure_ascii=False)
 
 
-def guardar_o_obtener_codigo(email: str, nombre: str, apellido: str) -> tuple:
+def guardar_o_obtener_codigo(email: str, nombre: str, apellido: str, telefono: str) -> tuple:
     """
     Devuelve el código existente o crea uno nuevo si no existe
     
@@ -40,6 +40,7 @@ def guardar_o_obtener_codigo(email: str, nombre: str, apellido: str) -> tuple:
         "codigo": codigo,
         "nombre": nombre,
         "apellido": apellido,
+        "telefono": telefono,
         "dominio": email.split('@')[1],
         "fecha_registro": datetime.now().isoformat(),
         "fecha_expiracion": (datetime.now() + timedelta(days=7)).isoformat(),
@@ -100,7 +101,7 @@ def obtener_usuario_por_codigo(codigo: str) -> tuple:
     return None, None
 
 
-def registrar_log_registro(nombre: str, apellido: str, email: str, codigo: str, es_nuevo: bool) -> None:
+def registrar_log_registro(nombre: str, apellido: str, email: str, telefono:str, codigo: str, es_nuevo: bool) -> None:
     """Registra en archivo de logs cada nuevo registro o reutilización"""
     with open("registros.txt", "a", encoding="utf-8") as f:
-        f.write(f"{datetime.now()} | {nombre} {apellido} | {email} | CODIGO: {codigo} | {'NUEVO' if es_nuevo else 'REUTILIZADO'}\n")
+        f.write(f"{datetime.now()} | {nombre} {apellido} | {email} | {telefono}| CODIGO: {codigo} | {'NUEVO' if es_nuevo else 'REUTILIZADO'}\n")

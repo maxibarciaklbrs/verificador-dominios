@@ -1,0 +1,28 @@
+{% extends "base.html" %} {% block title %}Verificación DNS TXT - klbrs.es{%
+endblock %} {% block content %}
+
+<section class="wrapper">
+  <h1>Verificación DNS TXT</h1>
+
+  {% if ya_existia %}
+  <div>ℹ️ Ya tienes un código de verificación activo.</div>
+  {% endif %}
+
+  <p>Hemos enviado un email a <strong>{{ email }}</strong></p>
+
+  <div>
+    <strong>Código de verificación:</strong>
+    {{ codigo }}
+  </div>
+
+  {% include "components/instrucciones.html" %} {% include
+  "components/pago.html" %} {% include "components/auditoria.html" %}
+
+  <div id="resultado"></div>
+
+  <a class="button" href="/">← Volver al inicio</a>
+</section>
+
+{% endblock %} {% block extra_js %}
+<script src="/static/js/registro_confirmacion.js"></script>
+{% endblock %}

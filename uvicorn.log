@@ -1,0 +1,17 @@
+INFO:     Started server process [1458]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     79.117.241.73:0 - "GET / HTTP/1.0" 200 OK
+INFO:     79.117.241.73:0 - "GET /favicon.ico HTTP/1.0" 404 Not Found
+INFO:     79.117.241.73:0 - "POST /submit HTTP/1.0" 200 OK
+INFO:     79.117.241.73:0 - "POST /validar-dns HTTP/1.0" 200 OK
+INFO:     79.117.241.73:0 - "GET / HTTP/1.0" 200 OK
+INFO:     79.117.241.73:0 - "POST /submit HTTP/1.0" 200 OK
+INFO:     79.117.241.73:0 - "POST /validar-dns HTTP/1.0" 200 OK
+INFO:     79.117.241.73:0 - "GET / HTTP/1.0" 200 OK
+INFO:     79.117.241.73:0 - "POST /submit HTTP/1.0" 200 OK
+INFO:     79.117.241.73:0 - "POST /validar-dns HTTP/1.0" 200 OK
+INFO:     79.117.241.73:0 - "POST /webhook-pago HTTP/1.0" 200 OK
+INFO:     79.117.241.73:0 - "POST /lanzar-escaneo HTTP/1.0" 200 OK
+INFO:     79.117.241.73:0 - "POST /estado-escaneo HTTP/1.0" 200 OK
