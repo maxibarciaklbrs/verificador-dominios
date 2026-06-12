@@ -24,5 +24,12 @@ endblock %} {% block content %}
 </section>
 
 {% endblock %} {% block extra_js %}
+<script>
+  window.APP_DATA = {
+    email: "{{ email }}",
+    codigo: "{{ codigo }}",
+    dominio: "{{ dominio }}"
+  };
+</script>
 <script src="/static/js/registro_confirmacion.js"></script>
 {% endblock %}

@@ -1,17 +1,16 @@
-const email = "{{ email }}";
-const codigo = "{{ codigo }}";
-const dominio = "{{ dominio }}";
+const APP = window.APP_DATA || {};
 
 let verificado = false;
 let escaneoActivo = false;
 
 function habilitarBotonPago() {
   const btnPago = document.getElementById("btnPago");
-  btnPago.disabled = false;
-  btnPago.style.opacity = "1";
+  btnPago.style.display = "block";
 }
 
 async function validarDNS() {
+  const { email, codigo, dominio } = window.APP_DATA || {};
+
   const btn = document.getElementById("btnValidar");
   const resultadoDiv = document.getElementById("resultado");
 
@@ -20,7 +19,7 @@ async function validarDNS() {
 
   resultadoDiv.style.display = "block";
   resultadoDiv.className = "resultado-box resultado-warning";
-  resultadoDiv.innerHTML = `🔍 Verificando registro TXT en ${dominio}...`;
+  resultadoDiv.innerHTML = `Verificando registro TXT en ${dominio}...`;
 
   try {
     const response = await fetch("/validar-dns", {
@@ -34,29 +33,30 @@ async function validarDNS() {
     if (data.exitoso) {
       verificado = true;
       resultadoDiv.className = "resultado-box resultado-success";
-      resultadoDiv.innerHTML = `✅ ${data.mensaje}`;
+      resultadoDiv.innerHTML = `${data.mensaje}`;
       habilitarBotonPago();
     } else {
       resultadoDiv.className = "resultado-box resultado-error";
-      resultadoDiv.innerHTML = `❌ ${data.mensaje} 💡 Espera unos minutos a que se propague el DNS y vuelve a intentar.`;
+      resultadoDiv.innerHTML = `${data.mensaje} Espera unos minutos a que se propague el DNS y vuelve a intentar.`;
     }
   } catch (error) {
     resultadoDiv.className = "resultado-box resultado-error";
-    resultadoDiv.innerHTML = `❌ Error de conexión: ${error}`;
+    resultadoDiv.innerHTML = `Error de conexión: ${error}`;
   } finally {
     btn.disabled = false;
-    btn.innerHTML = "🔍 Validar DNS";
+    btn.innerHTML = "Validar DNS";
   }
 }
 
 function mostrarMensaje(opcion) {
+  const { codigo } = window.APP_DATA || {};
   const resultadoDiv = document.getElementById("resultado");
   resultadoDiv.style.display = "block";
 
   if (opcion === "realizar-pago") {
     resultadoDiv.className = "resultado-box resultado-info";
     resultadoDiv.innerHTML = `
-            <strong>💰 EN DESARROLLO</strong><br>
+            <strong>EN DESARROLLO</strong><br>
             La pasarela de pago está en fase de integración.<br><br>
             <strong>Próximamente disponibles:</strong>
             <ul>
@@ -81,11 +81,11 @@ function mostrarMensaje(opcion) {
         if (data.exitoso) {
           resultadoDiv.className = "resultado-box resultado-success";
           resultadoDiv.innerHTML = `
-                    <strong>✅ PAGO CONFIRMADO</strong><br>
+                    <strong>PAGO CONFIRMADO</strong><br>
                     ${data.mensaje}<br>
-                    📧 Confirmación enviada al administrador<br>
-                    📱 Notificación enviada por Telegram<br>
-                    🛡️ Auditoría desbloqueada
+                    Confirmación enviada al administrador<br>
+                    Notificación enviada por Telegram<br>
+                    Auditoría desbloqueada
                 `;
 
           const opcionPago = document.querySelector(
@@ -100,7 +100,7 @@ function mostrarMensaje(opcion) {
         } else {
           resultadoDiv.className = "resultado-box resultado-error";
           resultadoDiv.innerHTML = `
-                    <strong>❌ ERROR</strong><br>
+                    <strong>ERROR</strong><br>
                     ${data.mensaje}
                 `;
         }
@@ -108,7 +108,7 @@ function mostrarMensaje(opcion) {
       .catch((error) => {
         resultadoDiv.className = "resultado-box resultado-error";
         resultadoDiv.innerHTML = `
-                <strong>❌ ERROR DE CONEXIÓN</strong><br>
+                <strong>ERROR DE CONEXIÓN</strong><br>
                 ${error}
             `;
       });
@@ -122,6 +122,12 @@ function habilitarAuditoria() {
 }
 
 async function iniciarAuditoria() {
+  const {email, dominio} = window.APP_DATA || {};
+
+  console.log("EMAIL:", email);
+  console.log("DOMINIO:", dominio);
+
+
   if (escaneoActivo) {
     alert("⚠️ Ya hay un escaneo en curso.");
     return;
@@ -160,13 +166,13 @@ async function iniciarAuditoria() {
       btn.disabled = false;
       btn.innerHTML = "🔄 Re-escanear";
     } else {
-      estadoDiv.innerHTML = "❌ Error al iniciar el escaneo.";
+      estadoDiv.innerHTML = "Error al iniciar el escaneo.";
       escaneoActivo = false;
       btn.disabled = false;
       btn.innerHTML = "🔍 Iniciar Escaneo";
     }
   } catch (error) {
-    estadoDiv.innerHTML = `❌ Error de conexión: ${error}`;
+    estadoDiv.innerHTML = `Error de conexión: ${error}`;
     escaneoActivo = false;
     btn.disabled = false;
     btn.innerHTML = "🔍 Iniciar Escaneo";
@@ -174,6 +180,7 @@ async function iniciarAuditoria() {
 }
 
 async function esperarEscaneo() {
+  const { email } = window.APP_DATA || {};
   const estadoDiv = document.getElementById("estadoEscaneo");
 
   const mensajes = [
@@ -264,3 +271,4 @@ function togglePago() {
     ? "Sección Pago ▼"
     : "Sección Pago ▲";
 }
+

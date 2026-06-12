@@ -179,6 +179,8 @@ def obtener_usuario(email: str):
 
 
 def obtener_usuario_por_codigo(codigo: str):
+    print("ENTRO EN OBTENER_USUARIO_POR_CODIGO")
+    raise Exception("PRUEBA")
     try:
         with get_cursor() as cursor:
             cursor.execute(
@@ -186,9 +188,14 @@ def obtener_usuario_por_codigo(codigo: str):
                 (codigo,)
             )
             row = cursor.fetchone()
+
+            print("Tipo:", type(row))
+            print("Row:", row)
+
+
             return dict(row) if row else None
-    except Exception as e:
-        logger.error(f"Error: {e}")
+    except Exception:
+        logger.exception("Error obteniendo usuario por código")
         return None
 
 
