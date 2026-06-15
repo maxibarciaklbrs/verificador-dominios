@@ -32,7 +32,7 @@ async def webhook_pago(request: Request):
     with open("pagos_registrados.txt", "a", encoding="utf-8") as f:
         f.write(f"{datetime.now().isoformat()} | {email} | {usuario['nombre']} | {usuario['apellido']} | CODIGO: {codigo} | MONTO: ${monto}\n")
     
-    logger.info(f"💰 Pago registrado: {email} - ${monto}")
+    logger.info(f"Pago registrado: {email} - ${monto}")
     
     # Notificación Telegram
     try:

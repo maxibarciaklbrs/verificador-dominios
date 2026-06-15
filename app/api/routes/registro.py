@@ -71,12 +71,32 @@ async def verify_turnstile(token: str, ip: str):
 def error_html(msg: str):
     return f"""
     <html>
-      <body style="font-family:sans-serif;padding:40px;text-align:center;">
-        <h1>⛔ {msg}</h1>
-        <a href="/">Volver</a>
-      </body>
-    </html>
-    """
+        <head>
+            <link rel="stylesheet" href="/static/css/style.css">
+        </head>
+        <body style="
+            text-align:center;
+            background-image: url('/static/assets/images/oficinas_klbrs.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+        ">  
+        
+            <div style="
+                background: white;
+                padding: 3em;
+                max-width: 600px;
+                margin: 5em auto;
+                border-radius: 10px;
+                text-align: center;
+            ">
+                <h1>{msg}</h1>
+                <a class="button" href="/">← Volver al inicio</a>
+            </div>     
+                    </body>
+                </html>
+                """
 
 
 # ==========================================================

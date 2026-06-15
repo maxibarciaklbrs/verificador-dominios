@@ -2,25 +2,24 @@
 endblock %} {% block content %}
 
 <section class="wrapper">
-  <h1>Verificación DNS TXT</h1>
+  <div class="inner">
+    <header class="major">
+      <h2>Verificación DNS TXT, Pago y Análisis</h2>
+    </header>
 
-  {% if ya_existia %}
-  <div>ℹ️ Ya tienes un código de verificación activo.</div>
-  {% endif %}
+    {% include "components/instrucciones.html" %}
 
-  <p>Hemos enviado un email a <strong>{{ email }}</strong></p>
+    <button onclick="validarDNS()" id="btnValidar" class="button">
+      Validar DNS
+    </button>
 
-  <div>
-    <strong>Código de verificación:</strong>
-    {{ codigo }}
+    {% include "components/pago.html" %} {% include "components/auditoria.html"
+    %}
+
+    <div id="resultado"></div>
+
+    <a class="button" href="/">← Volver al inicio</a>
   </div>
-
-  {% include "components/instrucciones.html" %} {% include
-  "components/pago.html" %} {% include "components/auditoria.html" %}
-
-  <div id="resultado"></div>
-
-  <a class="button" href="/">← Volver al inicio</a>
 </section>
 
 {% endblock %} {% block extra_js %}
@@ -28,7 +27,7 @@ endblock %} {% block content %}
   window.APP_DATA = {
     email: "{{ email }}",
     codigo: "{{ codigo }}",
-    dominio: "{{ dominio }}"
+    dominio: "{{ dominio }}",
   };
 </script>
 <script src="/static/js/registro_confirmacion.js"></script>

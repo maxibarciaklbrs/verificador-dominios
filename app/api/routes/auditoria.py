@@ -212,7 +212,7 @@ async def lanzar_escaneo(request: Request, background_tasks: BackgroundTasks):
                 with open(json_path, "r") as f:
                     datos = json.load(f)
                 alertas = datos.get("site", [{}])[0].get("alerts", [])
-                logger.info(f"✅ Usando caché: {len(alertas)} alertas")
+                logger.info(f"Usando caché: {len(alertas)} alertas")
                 return {
                     "exitoso": True,
                     "completado": True,

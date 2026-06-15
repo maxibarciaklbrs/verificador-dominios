@@ -35,6 +35,7 @@ async function validarDNS() {
       resultadoDiv.className = "resultado-box resultado-success";
       resultadoDiv.innerHTML = `${data.mensaje}`;
       habilitarBotonPago();
+      cambiarDisplayDns();
     } else {
       resultadoDiv.className = "resultado-box resultado-error";
       resultadoDiv.innerHTML = `${data.mensaje} Espera unos minutos a que se propague el DNS y vuelve a intentar.`;
@@ -97,6 +98,7 @@ function mostrarMensaje(opcion) {
           }
 
           habilitarAuditoria();
+          cambiarDisplayPago();
         } else {
           resultadoDiv.className = "resultado-box resultado-error";
           resultadoDiv.innerHTML = `
@@ -124,12 +126,8 @@ function habilitarAuditoria() {
 async function iniciarAuditoria() {
   const {email, dominio} = window.APP_DATA || {};
 
-  console.log("EMAIL:", email);
-  console.log("DOMINIO:", dominio);
-
-
   if (escaneoActivo) {
-    alert("⚠️ Ya hay un escaneo en curso.");
+    alert("Ya hay un escaneo en curso.");
     return;
   }
 
@@ -144,7 +142,7 @@ async function iniciarAuditoria() {
 
   estadoDiv.style.display = "block";
   resumenDiv.style.display = "none";
-  estadoDiv.innerHTML = "⏳ Preparando contenedor ZAP...";
+  estadoDiv.innerHTML = "Preparando contenedor ZAP...";
 
   try {
     const response = await fetch("/lanzar-escaneo", {
@@ -159,23 +157,23 @@ async function iniciarAuditoria() {
       mostrarResumen(data.resumen, data.url_completa);
       escaneoActivo = false;
       btn.disabled = false;
-      btn.innerHTML = "🔄 Re-escanear";
+      btn.innerHTML = "Re-escanear";
     } else if (data.exitoso && data.escaneando) {
       await esperarEscaneo();
       escaneoActivo = false;
       btn.disabled = false;
-      btn.innerHTML = "🔄 Re-escanear";
+      btn.innerHTML = "Re-escanear";
     } else {
       estadoDiv.innerHTML = "Error al iniciar el escaneo.";
       escaneoActivo = false;
       btn.disabled = false;
-      btn.innerHTML = "🔍 Iniciar Escaneo";
+      btn.innerHTML = "Iniciar Escaneo";
     }
   } catch (error) {
     estadoDiv.innerHTML = `Error de conexión: ${error}`;
     escaneoActivo = false;
     btn.disabled = false;
-    btn.innerHTML = "🔍 Iniciar Escaneo";
+    btn.innerHTML = "Iniciar Escaneo";
   }
 }
 
@@ -184,11 +182,11 @@ async function esperarEscaneo() {
   const estadoDiv = document.getElementById("estadoEscaneo");
 
   const mensajes = [
-    "🔍 Rastreando directorios...",
-    "📡 Analizando cabeceras...",
-    "🛡️ Verificando servidor...",
-    "🔐 Cookies y seguridad...",
-    "📊 Generando informe...",
+    "Rastreando directorios...",
+    "Analizando cabeceras...",
+    "Verificando servidor...",
+    "Cookies y seguridad...",
+    "Generando informe...",
   ];
 
   let intentos = 0;
@@ -219,7 +217,7 @@ async function esperarEscaneo() {
     }
   }
 
-  estadoDiv.innerHTML = "⚠️ El escaneo tarda más de lo esperado.";
+  estadoDiv.innerHTML = "El escaneo tarda más de lo esperado.";
   escaneoActivo = false;
 }
 
@@ -252,7 +250,7 @@ function mostrarResumen(resumen, urlCompleta) {
       })
       .join("");
   } else {
-    lista.innerHTML = "<li>✅ Sin vulnerabilidades</li>";
+    lista.innerHTML = "<li>Sin vulnerabilidades</li>";
   }
 
   document.getElementById("linkDescarga").href = urlCompleta;
@@ -272,3 +270,16 @@ function togglePago() {
     : "Sección Pago ▲";
 }
 
+function cambiarDisplayDns(){
+  const seccion = document.getElementById("seccionInstrucciones")
+  const boton = document.getElementById("btnValidar")
+
+  seccion.style.display = "none";
+  boton.style.display ="none";
+}
+
+function cambiarDisplayPago(){
+  const seccion = document.getElementById("seccionPago")
+
+  seccion.style.display = "none";
+}

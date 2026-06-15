@@ -1,17 +1,20 @@
-<section class="box">
-  <button onclick="validarDNS()" id="btnValidar" class="button">
-    Validar DNS
-  </button>
-
+<section id="seccionPago">
   <div class="dropdown">
-    <button id="btnPago" class="button" onclick="togglePago()" style="display: none;">Sección Pago ▼</button>
+    <button
+      id="btnPago"
+      class="primary"
+      onclick="togglePago()"
+      style="display: none"
+    >
+      Sección Pago ▼
+    </button>
 
-    <div id="menuPago" style="display: none;">
+    <div id="menuPago" style="display: none">
       <a onclick="mostrarMensaje('realizar-pago')" class="button"
-        >💳 Realizar Pago</a
+        >Realizar Pago</a
       >
       <a onclick="mostrarMensaje('pago-completado')" class="button"
-        >✅ Pago Completado</a
+        >Pago Completado</a
       >
     </div>
   </div>

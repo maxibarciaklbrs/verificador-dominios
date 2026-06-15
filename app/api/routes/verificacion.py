@@ -19,11 +19,11 @@ async def validar_dns(request: Request):
 
         if resultado and resultado.get("existe"):
             marcar_verificado(email)
-            logger.info(f"✅ Dominio verificado: {email}")
+            logger.info(f"Dominio verificado: {email}")
 
             return {
                 "exitoso": True,
-                "mensaje": f"✅ ¡Dominio verificado! Se encontró el código en {dominio}"
+                "mensaje": f"¡Dominio verificado! Se encontró el código en {dominio}"
             }
 
         return {
@@ -35,7 +35,7 @@ async def validar_dns(request: Request):
         logger.exception("Error en validar-dns")
         return {
             "exitoso": False,
-            "mensaje": f"❌ Error interno: {str(e)}"
+            "mensaje": f"Error interno: {str(e)}"
         }
 
 

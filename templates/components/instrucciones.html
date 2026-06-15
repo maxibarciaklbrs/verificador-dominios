@@ -1,4 +1,16 @@
-<section class="box">
+<section id="seccionInstrucciones">
+
+    {% if ya_existia %}
+    <div>Ya tienes un código de verificación activo.</div>
+    {% endif %}
+
+    <p>Hemos enviado un email a <strong>{{ email }}</strong></p>
+
+    <div>
+      <strong>Código de verificación:</strong>
+      {{ codigo }}
+    </div>
+    
     <p>¿Qué debes hacer?</strong></p>
     <ol>
         <li>Inicia sesión en el panel DNS de tu dominio</li>
