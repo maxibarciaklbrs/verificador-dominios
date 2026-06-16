@@ -6,7 +6,7 @@ from fastapi import (
 )
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-
+from typing import Optional
 from app.validations.validations import (
     normalize_name,
     normalize_email,
@@ -110,7 +110,7 @@ async def submit_form(
     nombre: str = Form(...),
     apellido: str = Form(...),
     email: str = Form(...),
-    telefono: str = Form(...),
+    telefono: Optional[str] = Form(None),
     turnstile_token: str = Form(...)
 ):
 
