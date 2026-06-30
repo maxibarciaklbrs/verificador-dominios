@@ -110,6 +110,14 @@ endblock %} {% block content %}
         </div>
       </form>
     </div>
+
+    <!-- ============================================ -->
+    <!-- SECCIÓN DE PAGO (se muestra después de verificar DNS) -->
+    <!-- ============================================ -->
+    <div id="seccionPagoContainer" style="display: none; margin-top: 30px;">
+      {% include 'components/pago.html' %}
+    </div>
+
   </div>
 </section>
 
@@ -120,4 +128,60 @@ endblock %} {% block content %}
   defer
 ></script>
 <script src="/static/js/registro.js"></script>
+
+<script>
+// ============================================
+// FUNCIONES PARA MOSTRAR LA SECCIÓN DE PAGO
+// ============================================
+
+// Función para mostrar la sección de pago después de verificar DNS
+function mostrarSeccionPago(codigo, email) {
+    console.log('✅ Mostrando sección de pago para código:', codigo);
+    
+    // Mostrar el contenedor
+    const container = document.getElementById('seccionPagoContainer');
+    if (container) {
+        container.style.display = 'block';
+    }
+    
+    // Establecer el código en el componente de pago
+    if (typeof setCodigoPago === 'function') {
+        setCodigoPago(codigo);
+    }
+    
+    // Guardar el email para usarlo en el pago
+    if (typeof setEmailPago === 'function') {
+        setEmailPago(email);
+    }
+    
+    // Hacer scroll a la sección de pago
+    setTimeout(() => {
+        container?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 500);
+}
+
+// Función para guardar el email
+function setEmailPago(email) {
+    window.emailPago = email;
+}
+
+// Función para obtener el email
+function getEmailPago() {
+    return window.emailPago || document.getElementById('email')?.value || '';
+}
+
+// Modificar la función setCodigoPago para que también guarde el email
+const originalSetCodigoPago = window.setCodigoPago;
+window.setCodigoPago = function(codigo) {
+    if (typeof originalSetCodigoPago === 'function') {
+        originalSetCodigoPago(codigo);
+    }
+    // Guardar el email también
+    const email = document.getElementById('email')?.value || '';
+    window.emailPago = email;
+};
+
+console.log('✅ Formulario cargado - Sección de pago lista');
+</script>
+
 {% endblock %}

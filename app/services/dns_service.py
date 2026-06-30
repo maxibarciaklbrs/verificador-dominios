@@ -49,3 +49,141 @@ def email_es_corporativo(email: str) -> tuple:
     if dominio in DOMINIOS_BLOQUEADOS:
         return False, f"No se permiten emails de {dominio}"
     return True, "Email corporativo válido"
+
+# ============================================
+# FUNCIONES PARA PAGOS (AGREGADAS)
+# ============================================
+
+def obtener_usuario_por_codigo(codigo: str):
+    """
+    Obtiene un usuario por su código de verificación
+    """
+    try:
+        import sqlite3
+        import os
+        
+        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "verificaciones.db")
+        
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT email, nombre, apellido, codigo, verificado, pagado 
+            FROM usuarios 
+            WHERE codigo = ?
+        """, (codigo,))
+        
+        row = cursor.fetchone()
+        conn.close()
+        
+        if row:
+            return {
+                "email": row[0],
+                "nombre": row[1],
+                "apellido": row[2],
+                "codigo": row[3],
+                "verificado": bool(row[4]),
+                "pagado": bool(row[5])
+            }
+        return None
+        
+    except Exception as e:
+        print(f"Error obteniendo usuario por código: {e}")
+        return None
+
+def marcar_pagado(email: str):
+    """
+    Marca un usuario como pagado en la base de datos
+    """
+    try:
+        import sqlite3
+        import os
+        from datetime import datetime
+        
+        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "verificaciones.db")
+        
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            UPDATE usuarios 
+            SET pagado = 1, fecha_pago = ? 
+            WHERE email = ?
+        """, (datetime.now().isoformat(), email))
+        
+        conn.commit()
+        conn.close()
+        return True
+        
+    except Exception as e:
+        print(f"Error marcando como pagado: {e}")
+        return False
+
+# ============================================
+# FUNCIONES PARA PAGOS (AGREGADAS)
+# ============================================
+
+def obtener_usuario_por_codigo(codigo: str):
+    """
+    Obtiene un usuario por su código de verificación
+    """
+    try:
+        import sqlite3
+        import os
+        
+        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "verificaciones.db")
+        
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT email, nombre, apellido, codigo, verificado, pagado 
+            FROM usuarios 
+            WHERE codigo = ?
+        """, (codigo,))
+        
+        row = cursor.fetchone()
+        conn.close()
+        
+        if row:
+            return {
+                "email": row[0],
+                "nombre": row[1],
+                "apellido": row[2],
+                "codigo": row[3],
+                "verificado": bool(row[4]),
+                "pagado": bool(row[5])
+            }
+        return None
+        
+    except Exception as e:
+        print(f"Error obteniendo usuario por código: {e}")
+        return None
+
+def marcar_pagado(email: str):
+    """
+    Marca un usuario como pagado en la base de datos
+    """
+    try:
+        import sqlite3
+        import os
+        from datetime import datetime
+        
+        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "verificaciones.db")
+        
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            UPDATE usuarios 
+            SET pagado = 1, fecha_pago = ? 
+            WHERE email = ?
+        """, (datetime.now().isoformat(), email))
+        
+        conn.commit()
+        conn.close()
+        return True
+        
+    except Exception as e:
+        print(f"Error marcando como pagado: {e}")
+        return False
