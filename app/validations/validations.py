@@ -16,9 +16,9 @@ PERSONAL_DOMAINS = {
 }
 
 
-# -------------------------
+# ==========================================================
 # Normalización
-# -------------------------
+# ==========================================================
 
 def normalize_name(value: str) -> str:
     return " ".join(value.strip().split())
@@ -32,9 +32,23 @@ def normalize_phone(value: str) -> str:
     return value.strip()
 
 
-# -------------------------
+# ==========================================================
+# Utilidades
+# ==========================================================
+
+def obtener_dominio_email(email: str) -> str:
+    """
+    Devuelve el dominio de un email.
+
+    Se asume que el email ya ha sido normalizado y validado.
+    """
+
+    return email.split("@", 1)[1]
+
+
+# ==========================================================
 # Validaciones
-# -------------------------
+# ==========================================================
 
 def validate_name(value: str) -> bool:
     return bool(value) and bool(NAME_REGEX.fullmatch(value))
@@ -45,11 +59,12 @@ def validate_email_format(value: str) -> bool:
 
 
 def validate_email_corporate(value: str) -> bool:
-    domain = value.split("@")[-1]
+    domain = obtener_dominio_email(value)
     return domain not in PERSONAL_DOMAINS
 
 
 def validate_phone(value: str) -> bool:
     if not value:
-        return True  # opcional
+        return True
+
     return bool(PHONE_REGEX.fullmatch(value))

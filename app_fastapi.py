@@ -11,7 +11,6 @@ app.include_router(registro)
 app.include_router(verificacion)
 app.include_router(pago)
 app.include_router(auditoria)
-app.include_router(confirmacion)
 
 os.makedirs(DIRECTORIO_REPORTES, exist_ok=True)
 
