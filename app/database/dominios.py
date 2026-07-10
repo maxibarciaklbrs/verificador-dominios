@@ -1,28 +1,45 @@
-import logging
-
 from app.database.connection import get_cursor
 
-logger = logging.getLogger(__name__)
 
+# ==========================================================
+# CREATE
+# ==========================================================
 
-def obtener_dominio_por_nombre(nombre: str):
+def crear_dominio(
+    nombre: str,
+    codigo: str
+) -> int:
+    """
+    Crea un dominio y devuelve su ID.
+    """
+
     with get_cursor() as cursor:
 
         cursor.execute(
             """
-            SELECT *
-            FROM dominios
-            WHERE nombre = ?
+            INSERT INTO dominios (
+                nombre,
+                codigo
+            )
+            VALUES (?, ?)
             """,
-            (nombre.lower(),)
+            (
+                nombre,
+                codigo
+            )
         )
 
-        row = cursor.fetchone()
-
-        return dict(row) if row else None
+        return cursor.lastrowid
 
 
-def obtener_dominio_por_id(dominio_id: int):
+# ==========================================================
+# READ
+# ==========================================================
+
+def obtener_dominio_por_id(
+    dominio_id: int
+):
+
     with get_cursor() as cursor:
 
         cursor.execute(
@@ -39,21 +56,96 @@ def obtener_dominio_por_id(dominio_id: int):
         return dict(row) if row else None
 
 
-def crear_dominio(nombre: str, codigo: str):
+def obtener_dominio_por_nombre(
+    nombre: str
+):
+
     with get_cursor() as cursor:
 
         cursor.execute(
             """
-            INSERT INTO dominios (
-                nombre,
-                codigo
-            )
-            VALUES (?, ?)
+            SELECT *
+            FROM dominios
+            WHERE nombre = ?
             """,
-            (
-                nombre.lower(),
-                codigo
-            )
+            (nombre,)
         )
 
-        return cursor.lastrowid
+        row = cursor.fetchone()
+
+        return dict(row) if row else None
+
+
+def obtener_dominio_por_codigo(
+    codigo: str
+):
+
+    with get_cursor() as cursor:
+
+        cursor.execute(
+            """
+            SELECT *
+            FROM dominios
+            WHERE codigo = ?
+            """,
+            (codigo,)
+        )
+
+        row = cursor.fetchone()
+
+        return dict(row) if row else None
+
+
+def obtener_todos_dominios():
+
+    with get_cursor() as cursor:
+
+        cursor.execute(
+            """
+            SELECT *
+            FROM dominios
+            ORDER BY nombre
+            """
+        )
+
+        return [dict(row) for row in cursor.fetchall()]
+
+
+# ==========================================================
+# EXISTS
+# ==========================================================
+
+def existe_dominio(
+    nombre: str
+) -> bool:
+
+    with get_cursor() as cursor:
+
+        cursor.execute(
+            """
+            SELECT 1
+            FROM dominios
+            WHERE nombre = ?
+            """,
+            (nombre,)
+        )
+
+        return cursor.fetchone() is not None
+
+# ==========================================================
+# DELETE
+# ==========================================================
+
+def eliminar_dominio(
+    dominio_id: int
+):
+
+    with get_cursor() as cursor:
+
+        cursor.execute(
+            """
+            DELETE FROM dominios
+            WHERE id = ?
+            """,
+            (dominio_id,)
+        )

@@ -1,6 +1,8 @@
 import logging
 import sqlite3
 
+from datetime import datetime, timedelta
+
 from app.database.dominios import (
     obtener_dominio_por_nombre,
     obtener_dominio_por_id,
@@ -8,7 +10,7 @@ from app.database.dominios import (
 )
 
 from app.database.usuarios import (
-    obtener_usuario,
+    obtener_usuario_por_email,
     obtener_usuario_por_id,
     crear_usuario
 )
@@ -33,7 +35,7 @@ def registrar_usuario(
     email: str,
     nombre: str,
     apellido: str,
-    telefono: str
+    telefono: str | None
 ):
     """
     Registra un usuario.
@@ -47,9 +49,7 @@ def registrar_usuario(
     email = normalize_email(email)
 
     if not validate_email_format(email):
-        raise DominioInvalidoError(
-            f"Email inválido: {email}"
-        )
+        raise DominioInvalidoError(email)
 
     try:
 
@@ -88,18 +88,23 @@ def registrar_usuario(
         # Usuario
         # ==================================================
 
-        usuario = obtener_usuario(email)
+        usuario = obtener_usuario_por_email(email)
 
         usuario_creado = False
 
         if usuario is None:
+
+            fecha_expiracion = (
+                datetime.now() + timedelta(days=7)
+            ).isoformat()
 
             usuario_id = crear_usuario(
                 email=email,
                 nombre=nombre,
                 apellido=apellido,
                 telefono=telefono,
-                dominio_id=dominio["id"]
+                dominio_id=dominio["id"],
+                fecha_expiracion=fecha_expiracion
             )
 
             usuario = obtener_usuario_por_id(
@@ -110,12 +115,6 @@ def registrar_usuario(
 
             logger.info(
                 f"Usuario creado: {email}"
-            )
-
-        else:
-
-            logger.info(
-                f"Usuario existente: {email}"
             )
 
         # ==================================================

@@ -1,46 +1,210 @@
-from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
-from app.models import obtener_usuario_por_codigo, marcar_pagado
-from app.services.telegram_service import enviar_notificacion_pago_telegram
-from datetime import datetime
+from fastapi import (
+    APIRouter,
+    Form,
+    Request
+)
+
+from fastapi.responses import (
+    RedirectResponse,
+    HTMLResponse
+)
+
+from fastapi.templating import (
+    Jinja2Templates
+)
+
 import logging
 
+
+from app.services.pago_service import (
+    crear_pago_usuario,
+    procesar_webhook_pago
+)
+
+from app.services.stripe_service import (
+    construir_evento
+)
+
+from app.config import (
+    STRIPE_WEBHOOK_SECRET
+)
+
+
+from app.exceptions.pago_exceptions import (
+    PagoError,
+    UsuarioNoEncontradoError,
+    UsuarioNoVerificadoError
+)
+
+
 router = APIRouter()
+
 logger = logging.getLogger(__name__)
 
-@router.post("/webhook-pago")
-async def webhook_pago(request: Request):
-    data = await request.json()
-    codigo = data.get("codigo")
-    monto = data.get("monto", 50.00)
-    
-    # Buscar usuario por código
-    usuario = obtener_usuario_por_codigo(codigo)
-    
-    if not usuario:
-        return {"exitoso": False, "mensaje": "Código no encontrado"}
-    
-    if usuario.get("pagado", False):
-        return {"exitoso": True, "mensaje": "Este pago ya había sido confirmado anteriormente"}
-    
-    email = usuario.get("email")
-    
-    # Marcar como pagado en SQLite
-    marcar_pagado(email)
-    
-    # Registrar en archivo de pagos
-    with open("pagos_registrados.txt", "a", encoding="utf-8") as f:
-        f.write(f"{datetime.now().isoformat()} | {email} | {usuario['nombre']} | {usuario['apellido']} | CODIGO: {codigo} | MONTO: ${monto}\n")
-    
-    logger.info(f"Pago registrado: {email} - ${monto}")
-    
-    # Notificación Telegram
+
+templates = Jinja2Templates(
+    directory="templates"
+)
+
+
+
+# ==========================================================
+# ERROR HTML
+# ==========================================================
+
+def error_html(
+    request: Request,
+    mensaje: str
+):
+
+    return templates.TemplateResponse(
+        "error.html",
+        {
+            "request": request,
+            "mensaje": mensaje
+        },
+        status_code=400
+    )
+
+
+
+# ==========================================================
+# CREAR CHECKOUT STRIPE
+# ==========================================================
+
+@router.post(
+    "/pagar",
+    response_class=HTMLResponse
+)
+async def pagar(
+    request: Request,
+    email: str = Form(...)
+):
+
     try:
-        enviar_notificacion_pago_telegram(usuario, codigo, monto)
+
+        resultado = crear_pago_usuario(
+            email
+        )
+
+
+        return RedirectResponse(
+            url=resultado["checkout_url"],
+            status_code=303
+        )
+
+
+    except UsuarioNoEncontradoError:
+
+        return error_html(
+            request,
+            "Usuario no encontrado."
+        )
+
+
+    except UsuarioNoVerificadoError:
+
+        return error_html(
+            request,
+            "Debes verificar el dominio antes del pago."
+        )
+
+
+    except PagoError:
+
+        logger.exception(
+            "Error iniciando pago"
+        )
+
+        return error_html(
+            request,
+            "No se pudo iniciar el pago."
+        )
+
+
+
+# ==========================================================
+# WEBHOOK STRIPE
+# ==========================================================
+
+@router.post(
+    "/stripe/webhook"
+)
+async def stripe_webhook(
+    request: Request
+):
+
+    try:
+
+        payload = await request.body()
+
+
+        signature = request.headers.get(
+            "stripe-signature"
+        )
+
+
+        evento = construir_evento(
+            payload,
+            signature,
+            STRIPE_WEBHOOK_SECRET
+        )
+
+
+        resultado = procesar_webhook_pago(
+            evento
+        )
+
+
+        return resultado
+
+
     except Exception as e:
-        logger.error(f"Error enviando Telegram: {e}")
-    
-    return {
-        "exitoso": True,
-        "mensaje": f"Pago confirmado correctamente. Monto: ${monto}. Nos pondremos en contacto contigo pronto."
-    }
+
+        logger.exception(
+            "Error procesando webhook Stripe"
+        )
+
+
+        return {
+            "ok": False,
+            "mensaje": str(e)
+        }
+
+
+
+# ==========================================================
+# RETORNOS STRIPE
+# ==========================================================
+
+@router.get(
+    "/pago/exitoso",
+    response_class=HTMLResponse
+)
+async def pago_exitoso(
+    request: Request
+):
+
+    return templates.TemplateResponse(
+        "pago-exitoso.html",
+        {
+            "request": request
+        }
+    )
+
+
+
+@router.get(
+    "/pago/cancelado",
+    response_class=HTMLResponse
+)
+async def pago_cancelado(
+    request: Request
+):
+
+    return templates.TemplateResponse(
+        "pago-cancelado.html",
+        {
+            "request": request
+        }
+    )

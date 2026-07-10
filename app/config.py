@@ -15,6 +15,37 @@ MI_EMAIL = os.getenv("MI_EMAIL", SMTP_USER)
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 
+# ==========================================================
+# Stripe
+# ==========================================================
+
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+
+STRIPE_SUCCESS_URL = os.getenv(
+    "STRIPE_SUCCESS_URL",
+    "http://localhost:8000/pago/exitoso"
+)
+
+STRIPE_CANCEL_URL = os.getenv(
+    "STRIPE_CANCEL_URL",
+    "http://localhost:8000/pago/cancelado"
+)
+
+
+# Cloudflare Turnstile
+
+TURNSTILE_SITE_KEY = os.getenv(
+    "TURNSTILE_SITE_KEY",
+    "0x4AAAAAADzKNJgXjE6-QvIN"
+)
+
+TURNSTILE_SECRET = os.getenv(
+    "TURNSTILE_SECRET",
+    "0x4AAAAAADzKNP4L7tAfROvFltzV156JRYo"
+)
+
 # Archivos
 ARCHIVO_PENDIENTES = "pendientes_verificacion.json"
 DIRECTORIO_REPORTES = "reportes"

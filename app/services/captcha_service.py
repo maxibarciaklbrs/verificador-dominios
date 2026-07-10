@@ -1,10 +1,10 @@
 import logging
 
-import httpx
+import requests
 
 logger = logging.getLogger(__name__)
 
-TURNSTILE_SECRET = "0x4AAAAAADeKap4zAyPENr_eDwCCf84T8os"
+from app.config import TURNSTILE_SECRET
 
 
 async def verificar_turnstile(
@@ -21,22 +21,21 @@ async def verificar_turnstile(
 
     try:
 
-        async with httpx.AsyncClient() as client:
+        response = requests.post(
+            "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+            data={
+                "secret": TURNSTILE_SECRET,
+                "response": token,
+                "remoteip": ip
+            },
+            timeout=10
+        )
 
-            response = await client.post(
-                "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-                data={
-                    "secret": TURNSTILE_SECRET,
-                    "response": token,
-                    "remoteip": ip
-                }
-            )
+        resultado = response.json()
 
-            resultado = response.json()
+        return resultado.get("success", False)
 
-            return resultado.get("success", False)
-
-    except httpx.HTTPError:
+    except requests.RequestException:
 
         logger.exception(
             "Error verificando Turnstile."

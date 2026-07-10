@@ -161,7 +161,7 @@ async def submit_form(
             telefono=telefono
         )
 
-        usuario = resultado["usuario"]
+        
         dominio = resultado["dominio"]
 
         codigo_verificacion = dominio["codigo"]

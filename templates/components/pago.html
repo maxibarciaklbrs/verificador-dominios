@@ -1,21 +1,36 @@
-<section id="seccionPago">
-  <div class="dropdown">
-    <button
-      id="btnPago"
-      class="primary"
-      onclick="togglePago()"
-      style="display: none"
+ <button
+        id="btnPago"
+        class="primary"
+        style="display:none"
     >
-      Sección Pago ▼
+        Continuar con el pago
     </button>
 
-    <div id="menuPago" style="display: none">
-      <a onclick="mostrarMensaje('realizar-pago')" class="button"
-        >Realizar Pago</a
-      >
-      <a onclick="mostrarMensaje('pago-completado')" class="button"
-        >Pago Completado</a
-      >
-    </div>
-  </div>
+    <form
+        id="formPago"
+        action="/pagar"
+        method="post"
+        style="display:none"
+    >
+
+        <input
+            type="hidden"
+            name="email"
+            value="{{ email }}"
+        >
+
+        <button
+            type="submit"
+            class="button primary"
+        >
+            Pagar con Stripe
+        </button>
+
+    </form>
+
+    <div
+        id="estadoPago"
+        style="display:none"
+    ></div>
+
 </section>

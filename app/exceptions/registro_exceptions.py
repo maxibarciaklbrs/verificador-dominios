@@ -1,8 +1,13 @@
 class RegistroError(Exception):
-    """Error general durante el registro."""
+    """
+    Excepción base para cualquier error relacionado
+    con el registro.
+    """
     pass
 
 
 class DominioInvalidoError(RegistroError):
-    """El email no contiene un dominio válido."""
-    pass
+    def __init__(self, email: str):
+        super().__init__(
+            f"El email '{email}' no es válido."
+        )
