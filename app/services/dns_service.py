@@ -12,34 +12,45 @@ def limpiar_dominio(dominio: str) -> str:
     return dominio.lower().strip()
 
 def verificar_dns_txt(dominio: str, codigo: str) -> dict:
+
     resultado = {"existe": False, "detalle": "", "registros": []}
+
     dominio = limpiar_dominio(dominio)
-    
+
     try:
-        logger.info(f"🔍 Verificando DNS TXT de {dominio}")
         proceso = subprocess.run(
             ['dig', dominio, 'TXT', '+short'],
-            capture_output=True, text=True, timeout=15
+            capture_output=True,
+            text=True,
+            timeout=30
         )
-        
+
         if proceso.returncode == 0 and proceso.stdout:
+
             for linea in proceso.stdout.strip().split('\n'):
                 txt_value = linea.strip('"')
+
                 resultado["registros"].append(txt_value)
+
                 if codigo in txt_value:
                     resultado["existe"] = True
                     resultado["detalle"] = "✅ Código encontrado"
                     return resultado
+
             resultado["detalle"] = "❌ Código NO encontrado"
         else:
             resultado["detalle"] = f"ℹ️ No hay registros TXT en {dominio}"
+
     except subprocess.TimeoutExpired:
         resultado["detalle"] = "⏱️ Timeout"
+
     except FileNotFoundError:
         resultado["detalle"] = "❌ Comando 'dig' no instalado"
+
     except Exception as e:
+        print("EXCEPCIÓN:", repr(e))
         resultado["detalle"] = f"❌ Error: {str(e)}"
-    
+
     return resultado
 
 def email_es_corporativo(email: str) -> tuple:
