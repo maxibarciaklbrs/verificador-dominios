@@ -5,11 +5,13 @@ from app.config import DOMINIOS_BLOQUEADOS
 
 logger = logging.getLogger(__name__)
 
+
 def limpiar_dominio(dominio: str) -> str:
-    dominio = re.sub(r'^https?://', '', dominio)
-    dominio = dominio.split('/')[0]
-    dominio = re.sub(r'^www\.', '', dominio)
+    dominio = re.sub(r"^https?://", "", dominio)
+    dominio = dominio.split("/")[0]
+    dominio = re.sub(r"^www\.", "", dominio)
     return dominio.lower().strip()
+
 
 def verificar_dns_txt(dominio: str, codigo: str) -> dict:
 
@@ -19,15 +21,15 @@ def verificar_dns_txt(dominio: str, codigo: str) -> dict:
 
     try:
         proceso = subprocess.run(
-            ['dig', dominio, 'TXT', '+short'],
+            ["dig", dominio, "TXT", "+short"],
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         if proceso.returncode == 0 and proceso.stdout:
 
-            for linea in proceso.stdout.strip().split('\n'):
+            for linea in proceso.stdout.strip().split("\n"):
                 txt_value = linea.strip('"')
 
                 resultado["registros"].append(txt_value)
@@ -53,10 +55,11 @@ def verificar_dns_txt(dominio: str, codigo: str) -> dict:
 
     return resultado
 
+
 def email_es_corporativo(email: str) -> tuple:
-    if '@' not in email:
+    if "@" not in email:
         return False, "Email inválido"
-    dominio = email.split('@')[1].lower()
+    dominio = email.split("@")[1].lower()
     if dominio in DOMINIOS_BLOQUEADOS:
         return False, f"No se permiten emails de {dominio}"
     return True, "Email corporativo válido"

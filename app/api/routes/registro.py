@@ -214,6 +214,8 @@ async def submit_form(
             "telefono": telefono,
             "codigo": codigo_verificacion,
             "dominio": dominio["nombre"],
-            "ya_existia": not es_nuevo
+            "ya_existia": not es_nuevo, 
+            "verificado": False,
+            "pagado": False
         }
     )

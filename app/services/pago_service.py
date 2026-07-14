@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 # CONFIGURACIÓN
 # ==========================================================
 
-IMPORTE_ANALISIS = 1      # Stripe trabaja en céntimos (1 = 0,01€)
+IMPORTE_ANALISIS = 20       # Stripe trabaja en céntimos (1 = 0,01€, con un minimo de 0,20)
 MONEDA = "eur"
 DESCRIPCION = "Análisis de vulnerabilidades"
 

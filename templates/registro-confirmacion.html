@@ -24,11 +24,14 @@ endblock %} {% block content %}
 
 {% endblock %} {% block extra_js %}
 <script>
-  window.APP_DATA = {
+window.APP_DATA = {
     email: "{{ email }}",
     codigo: "{{ codigo }}",
     dominio: "{{ dominio }}",
-  };
+    verificado: {{ verificado|tojson }},
+    pagado: {{ pagado|tojson }}
+};
+
 </script>
 <script src="/static/js/registro_confirmacion.js"></script>
 {% endblock %}

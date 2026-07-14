@@ -1,6 +1,7 @@
 const APP = window.APP_DATA || {};
 
 let verificado = false;
+let pagado = false;
 let escaneoActivo = false;
 
 // ==========================================================
@@ -8,12 +9,11 @@ let escaneoActivo = false;
 // ==========================================================
 
 function habilitarBotonPago() {
-    
-    const formPago = document.getElementById("formPago");
+  const formPago = document.getElementById("formPago");
 
-    if (formPago) {
-        formPago.style.display = "block";
-    }
+  if (formPago) {
+    formPago.style.display = "block";
+  }
 }
 
 // ==========================================================
@@ -311,3 +311,20 @@ function cambiarDisplayPago() {
 
   if (seccion) seccion.style.display = "none";
 }
+
+// ==========================================================
+// INICIO
+// ==========================================================
+
+window.addEventListener("DOMContentLoaded", () => {
+  if (APP.verificado) {
+    cambiarDisplayDns();
+    habilitarBotonPago();
+  }
+
+  if (APP.pagado) {
+    cambiarDisplayDns();
+    cambiarDisplayPago();
+    habilitarAuditoria();
+  }
+});

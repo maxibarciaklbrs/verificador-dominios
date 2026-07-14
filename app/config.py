@@ -33,7 +33,6 @@ STRIPE_CANCEL_URL = os.getenv(
     "http://localhost:8000/pago/cancelado"
 )
 
-
 # Cloudflare Turnstile
 
 TURNSTILE_SITE_KEY = os.getenv(
