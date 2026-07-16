@@ -1,7 +1,16 @@
 from fastapi import APIRouter, Request
-from app.services import verificar_dns_txt
-from app.models import marcar_verificado
 import logging
+
+from app.services.verification_service import (
+    verificar_dominio_usuario,
+    obtener_estado_verificacion
+)
+
+from app.exceptions.verificacion_exceptions import (
+    UsuarioNoEncontradoError,
+    DominioNoEncontradoError,
+    VerificacionError
+)
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -9,45 +18,68 @@ logger = logging.getLogger(__name__)
 
 @router.post("/validar-dns")
 async def validar_dns(request: Request):
+
     try:
+
         data = await request.json()
-        email = data.get("email")
-        codigo = data.get("codigo")
-        dominio = data.get("dominio")
 
-        resultado = verificar_dns_txt(dominio, codigo)
+        return verificar_dominio_usuario(
+            email=data["email"]
+        )
 
-        if resultado and resultado.get("existe"):
-            marcar_verificado(email)
-            logger.info(f"Dominio verificado: {email}")
+    except UsuarioNoEncontradoError as e:
 
-            return {
-                "exitoso": True,
-                "mensaje": f"¡Dominio verificado! Se encontró el código en {dominio}"
-            }
+        logger.warning(str(e))
 
         return {
             "exitoso": False,
-            "mensaje": f"No se encontró el código en {dominio} BACKEND_REAL_OK"
+            "mensaje": str(e)
         }
 
-    except Exception as e:
-        logger.exception("Error en validar-dns")
+    except DominioNoEncontradoError as e:
+
+        logger.warning(str(e))
+
         return {
             "exitoso": False,
-            "mensaje": f"Error interno: {str(e)}"
+            "mensaje": str(e)
+        }
+
+    except VerificacionError:
+
+        logger.exception("Error durante la verificación.")
+
+        return {
+            "exitoso": False,
+            "mensaje": "No se pudo verificar el dominio."
         }
 
 
 @router.post("/estado-verificacion")
 async def estado_verificacion(request: Request):
-    data = await request.json()
-    email = data.get("email")
-    
-    from app.models import obtener_usuario
-    usuario = obtener_usuario(email)
-    
-    if usuario and usuario.get("verificado", False):
-        return {"verificado": True}
-    
-    return {"verificado": False}
+
+    try:
+
+        data = await request.json()
+
+        return obtener_estado_verificacion(
+            data["email"]
+        )
+
+    except UsuarioNoEncontradoError as e:
+
+        logger.warning(str(e))
+
+        return {
+            "verificado": False,
+            "mensaje": str(e)
+        }
+
+    except VerificacionError:
+
+        logger.exception("Error obteniendo estado.")
+
+        return {
+            "verificado": False,
+            "mensaje": "No se pudo obtener el estado de verificación."
+        }

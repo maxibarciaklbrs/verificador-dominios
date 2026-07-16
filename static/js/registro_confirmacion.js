@@ -1,215 +1,246 @@
 const APP = window.APP_DATA || {};
 
 let verificado = false;
+let pagado = false;
 let escaneoActivo = false;
 
+// ==========================================================
+// PAGO
+// ==========================================================
+
 function habilitarBotonPago() {
-  const btnPago = document.getElementById("btnPago");
-  btnPago.style.display = "block";
+  const formPago = document.getElementById("formPago");
+
+  if (formPago) {
+    formPago.style.display = "block";
+  }
 }
 
+// ==========================================================
+// VALIDACIÓN DNS
+// ==========================================================
+
 async function validarDNS() {
-  const { email, codigo, dominio } = window.APP_DATA || {};
+  const { email, codigo, dominio } = APP;
 
   const btn = document.getElementById("btnValidar");
+
   const resultadoDiv = document.getElementById("resultado");
 
   btn.disabled = true;
+
   btn.innerHTML = '<span class="loading-spinner"></span> Verificando DNS...';
 
   resultadoDiv.style.display = "block";
+
   resultadoDiv.className = "resultado-box resultado-warning";
+
   resultadoDiv.innerHTML = `Verificando registro TXT en ${dominio}...`;
 
   try {
     const response = await fetch("/validar-dns", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, codigo, dominio }),
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        email,
+        codigo,
+        dominio,
+      }),
     });
 
     const data = await response.json();
 
     if (data.exitoso) {
       verificado = true;
+
       resultadoDiv.className = "resultado-box resultado-success";
-      resultadoDiv.innerHTML = `${data.mensaje}`;
+
+      resultadoDiv.innerHTML = data.mensaje;
+
       habilitarBotonPago();
+
       cambiarDisplayDns();
     } else {
       resultadoDiv.className = "resultado-box resultado-error";
-      resultadoDiv.innerHTML = `${data.mensaje} Espera unos minutos a que se propague el DNS y vuelve a intentar.`;
+
+      resultadoDiv.innerHTML = `
+        ${data.mensaje}
+        <br><br>
+        Espera unos minutos a que se propague el DNS
+        y vuelve a intentarlo.
+        `;
     }
   } catch (error) {
     resultadoDiv.className = "resultado-box resultado-error";
-    resultadoDiv.innerHTML = `Error de conexión: ${error}`;
+
+    resultadoDiv.innerHTML = `
+      Error de conexión:
+      ${error}
+      `;
   } finally {
     btn.disabled = false;
+
     btn.innerHTML = "Validar DNS";
   }
 }
 
+// ==========================================================
+// MENSAJES
+// ==========================================================
+
 function mostrarMensaje(opcion) {
-  const { codigo } = window.APP_DATA || {};
   const resultadoDiv = document.getElementById("resultado");
+
+  if (!resultadoDiv) {
+    return;
+  }
+
   resultadoDiv.style.display = "block";
 
   if (opcion === "realizar-pago") {
     resultadoDiv.className = "resultado-box resultado-info";
+
     resultadoDiv.innerHTML = `
-            <strong>EN DESARROLLO</strong><br>
-            La pasarela de pago está en fase de integración.<br><br>
-            <strong>Próximamente disponibles:</strong>
-            <ul>
-                <li>Stripe (Tarjetas de crédito/débito)</li>
-                <li>PayPal</li>
-                <li>Transferencia bancaria</li>
-            </ul>
-            <em>Por ahora, usa "Pago Completado" para simular el proceso.</em>
-        `;
-  } else if (opcion === "pago-completado") {
-    resultadoDiv.className = "resultado-box resultado-warning";
-    resultadoDiv.innerHTML =
-      '<span class="loading-spinner"></span> Procesando pago...';
-
-    fetch("/webhook-pago", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ codigo, monto: 50.0 }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.exitoso) {
-          resultadoDiv.className = "resultado-box resultado-success";
-          resultadoDiv.innerHTML = `
-                    <strong>PAGO CONFIRMADO</strong><br>
-                    ${data.mensaje}<br>
-                    Confirmación enviada al administrador<br>
-                    Notificación enviada por Telegram<br>
-                    Auditoría desbloqueada
-                `;
-
-          const opcionPago = document.querySelector(
-            ".dropdown-content a:last-child",
-          );
-          if (opcionPago) {
-            opcionPago.style.opacity = "0.5";
-            opcionPago.style.pointerEvents = "none";
-          }
-
-          habilitarAuditoria();
-          cambiarDisplayPago();
-        } else {
-          resultadoDiv.className = "resultado-box resultado-error";
-          resultadoDiv.innerHTML = `
-                    <strong>ERROR</strong><br>
-                    ${data.mensaje}
-                `;
-        }
-      })
-      .catch((error) => {
-        resultadoDiv.className = "resultado-box resultado-error";
-        resultadoDiv.innerHTML = `
-                <strong>ERROR DE CONEXIÓN</strong><br>
-                ${error}
-            `;
-      });
+      <strong>Preparando pago...</strong>
+      <br>
+      Serás redirigido a Stripe.
+      `;
   }
 }
 
+// ==========================================================
+// AUDITORÍA
+// ==========================================================
+
 function habilitarAuditoria() {
   const seccion = document.getElementById("seccionAuditoria");
+
+  if (!seccion) {
+    return;
+  }
+
   seccion.style.display = "block";
-  seccion.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  seccion.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
 }
 
 async function iniciarAuditoria() {
-  const {email, dominio} = window.APP_DATA || {};
+  const { email, dominio } = APP;
 
   if (escaneoActivo) {
     alert("Ya hay un escaneo en curso.");
+
     return;
   }
 
   const btn = document.getElementById("btnAuditoria");
+
   const estadoDiv = document.getElementById("estadoEscaneo");
+
   const resumenDiv = document.getElementById("resumenEscaneo");
 
   escaneoActivo = true;
 
   btn.disabled = true;
+
   btn.innerHTML = '<span class="loading-spinner"></span> Iniciando escaneo...';
 
   estadoDiv.style.display = "block";
+
   resumenDiv.style.display = "none";
-  estadoDiv.innerHTML = "Preparando contenedor ZAP...";
+
+  estadoDiv.innerHTML = "Preparando análisis...";
 
   try {
     const response = await fetch("/lanzar-escaneo", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, dominio }),
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        email,
+        dominio,
+      }),
     });
 
     const data = await response.json();
 
     if (data.exitoso && data.cache) {
       mostrarResumen(data.resumen, data.url_completa);
-      escaneoActivo = false;
-      btn.disabled = false;
-      btn.innerHTML = "Re-escanear";
     } else if (data.exitoso && data.escaneando) {
       await esperarEscaneo();
-      escaneoActivo = false;
-      btn.disabled = false;
-      btn.innerHTML = "Re-escanear";
     } else {
       estadoDiv.innerHTML = "Error al iniciar el escaneo.";
-      escaneoActivo = false;
-      btn.disabled = false;
-      btn.innerHTML = "Iniciar Escaneo";
     }
   } catch (error) {
     estadoDiv.innerHTML = `Error de conexión: ${error}`;
+  } finally {
     escaneoActivo = false;
+
     btn.disabled = false;
-    btn.innerHTML = "Iniciar Escaneo";
+
+    btn.innerHTML = "Re-escanear";
   }
 }
 
 async function esperarEscaneo() {
-  const { email } = window.APP_DATA || {};
-  const estadoDiv = document.getElementById("estadoEscaneo");
+  const { email } = APP;
 
-  const mensajes = [
-    "Rastreando directorios...",
-    "Analizando cabeceras...",
-    "Verificando servidor...",
-    "Cookies y seguridad...",
-    "Generando informe...",
-  ];
+  const estadoDiv = document.getElementById("estadoEscaneo");
 
   let intentos = 0;
 
+  const mensajes = [
+    "Rastreando directorios...",
+
+    "Analizando cabeceras...",
+
+    "Verificando servidor...",
+
+    "Cookies y seguridad...",
+
+    "Generando informe...",
+  ];
+
   while (intentos < 30) {
     await new Promise((r) => setTimeout(r, 10000));
+
     intentos++;
 
-    const msg = mensajes[Math.floor(intentos / 2) % mensajes.length];
-    estadoDiv.innerHTML = `${msg} <small>⏱️ ${intentos * 10}s</small>`;
+    estadoDiv.innerHTML = `
+      ${mensajes[intentos % mensajes.length]}
+      <small>
+      ${intentos * 10}s
+      </small>
+      `;
 
     try {
       const response = await fetch("/estado-escaneo", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          email,
+        }),
       });
 
       const data = await response.json();
 
       if (data.completado) {
         mostrarResumen(data.resumen, data.url_completa);
-        escaneoActivo = false;
+
         return;
       }
     } catch (e) {
@@ -218,18 +249,21 @@ async function esperarEscaneo() {
   }
 
   estadoDiv.innerHTML = "El escaneo tarda más de lo esperado.";
-  escaneoActivo = false;
 }
 
 function mostrarResumen(resumen, urlCompleta) {
   document.getElementById("estadoEscaneo").style.display = "none";
 
   const resumenDiv = document.getElementById("resumenEscaneo");
+
   resumenDiv.style.display = "block";
 
   document.getElementById("countCriticas").innerText = resumen.criticas;
+
   document.getElementById("countMedias").innerText = resumen.medias;
+
   document.getElementById("countBajas").innerText = resumen.bajas;
+
   document.getElementById("countTotal").innerText = resumen.total;
 
   const lista = document.getElementById("listaAlertas");
@@ -237,16 +271,18 @@ function mostrarResumen(resumen, urlCompleta) {
   if (resumen.detalles?.length) {
     lista.innerHTML = resumen.detalles
       .map((d) => {
-        const icono =
-          d.riesgo === "3"
-            ? "🔴"
-            : d.riesgo === "2"
-              ? "🟠"
-              : d.riesgo === "1"
-                ? "🟢"
-                : "ℹ️";
+        let icono = "ℹ️";
 
-        return `<li>${icono} <strong>${d.nombre}</strong></li>`;
+        if (d.riesgo === "3") icono = "🔴";
+        else if (d.riesgo === "2") icono = "🟠";
+        else if (d.riesgo === "1") icono = "🟢";
+
+        return `
+        <li>
+          ${icono}
+          <strong>${d.nombre}</strong>
+        </li>
+        `;
       })
       .join("");
   } else {
@@ -254,32 +290,41 @@ function mostrarResumen(resumen, urlCompleta) {
   }
 
   document.getElementById("linkDescarga").href = urlCompleta;
-
-  resumenDiv.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
-function togglePago() {
-  const menu = document.getElementById("menuPago");
-  const boton = document.getElementById("btnPago");
+// ==========================================================
+// UI
+// ==========================================================
 
-  const abierto = menu.style.display === "block";
+function cambiarDisplayDns() {
+  const seccion = document.getElementById("seccionInstrucciones");
 
-  menu.style.display = abierto ? "none" : "block";
-  boton.textContent = abierto
-    ? "Sección Pago ▼"
-    : "Sección Pago ▲";
+  const boton = document.getElementById("btnValidar");
+
+  if (seccion) seccion.style.display = "none";
+
+  if (boton) boton.style.display = "none";
 }
 
-function cambiarDisplayDns(){
-  const seccion = document.getElementById("seccionInstrucciones")
-  const boton = document.getElementById("btnValidar")
+function cambiarDisplayPago() {
+  const seccion = document.getElementById("seccionPago");
 
-  seccion.style.display = "none";
-  boton.style.display ="none";
+  if (seccion) seccion.style.display = "none";
 }
 
-function cambiarDisplayPago(){
-  const seccion = document.getElementById("seccionPago")
+// ==========================================================
+// INICIO
+// ==========================================================
 
-  seccion.style.display = "none";
-}
+window.addEventListener("DOMContentLoaded", () => {
+  if (APP.verificado) {
+    cambiarDisplayDns();
+    habilitarBotonPago();
+  }
+
+  if (APP.pagado) {
+    cambiarDisplayDns();
+    cambiarDisplayPago();
+    habilitarAuditoria();
+  }
+});

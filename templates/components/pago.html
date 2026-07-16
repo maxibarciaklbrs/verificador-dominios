@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <section id="seccionPago">
   <div class="dropdown">
     <button
@@ -250,3 +251,36 @@ console.log('✅ Componente de pago cargado correctamente');
     to { opacity: 1; transform: translateY(0); }
 }
 </style>
+=======
+
+<section id="seccionPago">
+
+    <form
+        id="formPago"
+        action="/pagar"
+        method="post"
+        style="display:none"
+    >
+
+        <input
+            type="hidden"
+            name="email"
+            value="{{ email }}"
+        >
+
+        <button
+            type="submit"
+            class="button primary"
+        >
+            Pagar con Stripe
+        </button>
+
+    </form>
+
+    <div
+        id="estadoPago"
+        style="display:none"
+    ></div>
+</section>
+
+>>>>>>> dev
