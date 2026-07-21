@@ -1,12 +1,9 @@
-<<<<<<< HEAD
-=======
 from fastapi import APIRouter, Form, Request
 
 from fastapi.responses import RedirectResponse, HTMLResponse
 
 from fastapi.templating import Jinja2Templates
 
->>>>>>> dev
 import logging
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
@@ -18,9 +15,7 @@ import stripe
 import os
 from dotenv import load_dotenv
 
-<<<<<<< HEAD
 load_dotenv()
-=======
 
 from app.services.pago_service import crear_pago_usuario, procesar_webhook_pago
 
@@ -43,7 +38,6 @@ from app.database.dominios import obtener_dominio_por_id
 
 router = APIRouter()
 
->>>>>>> dev
 logger = logging.getLogger(__name__)
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -55,7 +49,6 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 # ENDPOINT LEGACY (SIMULACIÓN MANUAL)
 # ============================================
 
-<<<<<<< HEAD
 @router.post("/webhook-pago")
 async def webhook_pago(request: Request):
     """
@@ -298,7 +291,6 @@ async def pago_cancelado(request: Request, session_id: str = None):
         "session_id": session_id,
         "mensaje": "El pago fue cancelado. Puedes intentarlo nuevamente cuando quieras."
     })
-=======
 
 templates = Jinja2Templates(directory="templates")
 
@@ -462,4 +454,3 @@ async def pago_cancelado(request: Request, session_id: str):
             "pagado": False,
         },
     )
->>>>>>> dev

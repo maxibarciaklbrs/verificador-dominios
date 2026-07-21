@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Request, BackgroundTasks
 from fastapi.responses import FileResponse
 from app.config import DIRECTORIO_REPORTES
+from app.services.burp_service import burp_habilitado, escanear_sincrono as escanear_burp
+from app.services.report_merger import unificar_alertas, generar_reporte_unificado
 import os
 import json
 import subprocess
@@ -22,34 +24,34 @@ def ejecutar_escaneo_sync(email: str, dominio: str):
     logger.info(f"🚀 [BG] Iniciando escaneo para {dominio}")
     
     try:
-        # Ejecutar ZAP y capturar salida
-        result = subprocess.run(
-            [
-                "docker", "run", "--rm",
-                "-v", f"{ruta_absoluta}:/zap/wrk",
-                "ghcr.io/zaproxy/zaproxy:stable",
-                "zap-baseline.py",
-                "-t", f"https://{dominio}"
-            ],
-            capture_output=True,
-            text=True,
-            timeout=300
-        )
+        output_text = ""
+        try:
+            result = subprocess.run(
+                [
+                    "docker", "run", "--rm",
+                    "-v", f"{ruta_absoluta}:/zap/wrk",
+                    "ghcr.io/zaproxy/zaproxy:stable",
+                    "zap-baseline.py",
+                    "-t", f"https://{dominio}"
+                ],
+                capture_output=True,
+                text=True,
+                timeout=600
+            )
+            output_text = result.stdout
+            logger.info(f"[BG] Código retorno: {result.returncode}")
+            logger.info(f"[BG] Longitud salida: {len(output_text)} caracteres")
+        except subprocess.TimeoutExpired as e:
+            output_text = (e.stdout or "") if isinstance(e.stdout, str) else ""
+            logger.error(f"[BG] ⏱️ ZAP superó el timeout de 600s para {dominio}, se genera reporte con lo que haya salido hasta el corte")
         
-        output_text = result.stdout
-        logger.info(f"[BG] Código retorno: {result.returncode}")
-        logger.info(f"[BG] Longitud salida: {len(output_text)} caracteres")
-        
-        # Extraer vulnerabilidades usando múltiples patrones
         alertas = []
         
-        # Patrón 1: WARN-NEW con formato completo
         patron1 = r'WARN-NEW:\s+([^[]+)\[(\d+)\]\s+x\s+(\d+)'
         matches1 = re.findall(patron1, output_text)
         
         for nombre, vuln_id, ocurrencias in matches1:
             nombre = nombre.strip()
-            # Clasificar riesgo
             riesgo = "1"
             if any(x in nombre for x in ["CSP", "Security", "Strict-Transport", "Permissions", "Cross-Origin", "Embedder", "X-Content-Type"]):
                 riesgo = "2"
@@ -60,11 +62,9 @@ def ejecutar_escaneo_sync(email: str, dominio: str):
                 "instances": int(ocurrencias)
             })
         
-        # Patrón 2: WARN-NEW simple (sin ocurrencias)
         if not alertas:
             lineas_warn = [line for line in output_text.split('\n') if 'WARN-NEW:' in line and not line.startswith('WARN-NEW: 0')]
             for linea in lineas_warn:
-                # Extraer el nombre
                 match = re.search(r'WARN-NEW:\s+([^[]+?)(?:\s*\[|$)', linea)
                 if match:
                     nombre = match.group(1).strip()
@@ -76,7 +76,6 @@ def ejecutar_escaneo_sync(email: str, dominio: str):
                             "instances": 1
                         })
         
-        # Patrón 3: Buscar líneas que contengan vulnerabilidades conocidas
         if not alertas:
             vulnerabilidades_conocidas = [
                 "Content Security Policy", "CSP Header", "Strict-Transport-Security",
@@ -94,92 +93,47 @@ def ejecutar_escaneo_sync(email: str, dominio: str):
                         })
                         break
         
-        # Si aún no hay alertas pero hay WARN-NEW en la salida, extraer todo
         if not alertas and 'WARN-NEW:' in output_text:
-            # Guardar la salida completa para depuración
             debug_path = os.path.join(ruta_absoluta, f"{nombre_base}_debug.txt")
             with open(debug_path, 'w') as f:
                 f.write(output_text)
             logger.info(f"[BG] Salida guardada en {debug_path}")
             
-            # Extraer líneas WARN-NEW
             for linea in output_text.split('\n'):
                 if 'WARN-NEW:' in linea and 'PASS:' not in linea:
-                    # Limpiar la línea
                     linea_limpia = linea.replace('WARN-NEW:', '').strip()
                     if linea_limpia and not linea_limpia.startswith('0'):
                         alertas.append({
-                            "alert": linea_limpia[:100],  # Primeros 100 caracteres
+                            "alert": linea_limpia[:100],
                             "riskcode": "1",
                             "id": "0",
                             "instances": 1
                         })
         
-        logger.info(f"[BG] Alertas encontradas: {len(alertas)}")
-        
-        # Guardar JSON
-        json_path = os.path.join(ruta_absoluta, f"{nombre_base}.json")
-        datos_json = {
-            "site": [{
-                "name": dominio,
-                "alerts": alertas,
-                "scan_date": datetime.now().isoformat()
-            }]
-        }
-        with open(json_path, "w", encoding="utf-8") as f:
-            json.dump(datos_json, f, indent=2, ensure_ascii=False)
-        
-        # Generar HTML
-        criticas = sum(1 for a in alertas if a.get('riskcode') == '3')
-        medias = sum(1 for a in alertas if a.get('riskcode') == '2')
-        bajas = sum(1 for a in alertas if a.get('riskcode') == '1')
-        
-        html_path = os.path.join(ruta_absoluta, f"{nombre_base}.html")
-        html_content = f"""<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Reporte Seguridad - {dominio}</title>
-    <style>
-        body {{ font-family: Arial; margin: 20px; background: #f5f5f5; }}
-        .container {{ max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; padding: 20px; }}
-        h1 {{ color: #333; }}
-        .summary {{ display: flex; gap: 20px; margin: 20px 0; }}
-        .card {{ flex: 1; padding: 20px; border-radius: 8px; text-align: center; color: white; }}
-        .card.critical {{ background: #f44336; }}
-        .card.medium {{ background: #ff9800; }}
-        .card.low {{ background: #4caf50; }}
-        .card.total {{ background: #2196f3; }}
-        .number {{ font-size: 2em; font-weight: bold; }}
-        table {{ width: 100%; border-collapse: collapse; }}
-        th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-        th {{ background: #4CAF50; color: white; }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🔒 Reporte de Seguridad - {dominio}</h1>
-        <p>Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
-        <div class="summary">
-            <div class="card critical"><div class="number">{criticas}</div>Críticas</div>
-            <div class="card medium"><div class="number">{medias}</div>Medias</div>
-            <div class="card low"><div class="number">{bajas}</div>Bajas</div>
-            <div class="card total"><div class="number">{len(alertas)}</div>Total</div>
-        </div>
-        <h2>Vulnerabilidades Detectadas</h2>
-        <table>
-            <tr><th>#</th><th>Vulnerabilidad</th><th>Riesgo</th></tr>"""
-        
-        for i, a in enumerate(alertas, 1):
-            riesgo_text = "Media" if a['riskcode'] == '2' else "Baja"
-            html_content += f"<tr><td>{i}</td><td>{a['alert']}</td><td>{riesgo_text}</td></tr>"
-        
-        html_content += "</table></div></body></html>"
-        
-        with open(html_path, "w", encoding="utf-8") as f:
-            f.write(html_content)
-        
-        logger.info(f"[BG] ✅ Reportes guardados: {len(alertas)} vulnerabilidades")
+        logger.info(f"[BG] Alertas ZAP encontradas: {len(alertas)}")
+
+        generar_reporte_unificado(
+            dominio,
+            [{**a, "fuente": "OWASP ZAP"} for a in alertas],
+            ruta_absoluta,
+            f"{nombre_base}_zap"
+        )
+
+        alertas_burp = []
+        if burp_habilitado():
+            logger.info(f"[BG] 🟠 Burp Suite habilitado, escaneando {dominio}...")
+            resultado_burp = escanear_burp(f"https://{dominio}")
+            if resultado_burp:
+                alertas_burp = resultado_burp
+                generar_reporte_unificado(dominio, alertas_burp, ruta_absoluta, f"{nombre_base}_burp")
+                logger.info(f"[BG] ✅ Burp completó: {len(alertas_burp)} hallazgos")
+            else:
+                logger.warning("[BG] ⚠️ Burp no devolvió resultados (revisar configuración BURP_* o el timeout)")
+
+        alertas_finales = unificar_alertas(alertas, alertas_burp)
+        json_path, html_path = generar_reporte_unificado(dominio, alertas_finales, ruta_absoluta, nombre_base)
+
+        logger.info(f"[BG] ✅ Reporte final guardado: {len(alertas_finales)} vulnerabilidades ({len(alertas)} ZAP + {len(alertas_burp)} Burp)")
         return True
         
     except Exception as e:
@@ -194,6 +148,7 @@ async def lanzar_escaneo(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
     email = data.get("email")
     dominio = data.get("dominio")
+    forzar = bool(data.get("forzar", False))
     
     if not email or not dominio:
         return {"exitoso": False, "error": "Email y dominio requeridos"}
@@ -203,9 +158,19 @@ async def lanzar_escaneo(request: Request, background_tasks: BackgroundTasks):
     dominio_email = email.split('@')[1]
     nombre_base = f"reporte_{dominio_email}"
     json_path = os.path.join(DIRECTORIO_REPORTES, f"{nombre_base}.json")
-    
-    # Verificar caché
-    if os.path.exists(json_path):
+
+    if forzar:
+        ruta_absoluta = os.path.abspath(DIRECTORIO_REPORTES)
+        if os.path.isdir(ruta_absoluta):
+            for f in os.listdir(ruta_absoluta):
+                if f.startswith(nombre_base):
+                    try:
+                        os.remove(os.path.join(ruta_absoluta, f))
+                        logger.info(f"🗑️ Reporte viejo eliminado: {f}")
+                    except OSError as e:
+                        logger.warning(f"No se pudo borrar {f}: {e}")
+
+    if not forzar and os.path.exists(json_path):
         try:
             cache_age = datetime.now().timestamp() - os.path.getmtime(json_path)
             if cache_age < 3600:
@@ -224,12 +189,16 @@ async def lanzar_escaneo(request: Request, background_tasks: BackgroundTasks):
                         "detalles": [{"nombre": a['alert'][:50], "riesgo": str(a.get('riskcode', '1'))} for a in alertas[:5]]
                     },
                     "url_completa": f"/descargar/{nombre_base}.html",
+                    "descargas": {
+                        "unificado": f"/descargar/{nombre_base}.html",
+                        "zap": f"/descargar/{nombre_base}_zap.html",
+                        "burp": f"/descargar/{nombre_base}_burp.html" if os.path.exists(os.path.join(DIRECTORIO_REPORTES, f"{nombre_base}_burp.html")) else None
+                    },
                     "cache": True
                 }
         except Exception as e:
             logger.error(f"Error caché: {e}")
     
-    # Iniciar escaneo en segundo plano
     background_tasks.add_task(ejecutar_escaneo_sync, email, dominio)
     
     return {
@@ -264,7 +233,12 @@ async def estado_escaneo(request: Request):
                 "bajas": sum(1 for a in alertas if a.get('riskcode') == '1'),
                 "detalles": [{"nombre": a['alert'][:50], "riesgo": str(a.get('riskcode', '1'))} for a in alertas[:5]]
             },
-            "url_completa": f"/descargar/reporte_{dominio_email}.html"
+            "url_completa": f"/descargar/reporte_{dominio_email}.html",
+            "descargas": {
+                "unificado": f"/descargar/reporte_{dominio_email}.html",
+                "zap": f"/descargar/reporte_{dominio_email}_zap.html",
+                "burp": f"/descargar/reporte_{dominio_email}_burp.html" if os.path.exists(os.path.join(DIRECTORIO_REPORTES, f"reporte_{dominio_email}_burp.html")) else None
+            }
         }
     
     return {"completado": False}

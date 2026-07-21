@@ -148,6 +148,8 @@ async function iniciarAuditoria() {
 
   escaneoActivo = true;
 
+  const esReEscaneo = btn.textContent.includes("Re-escanear");
+
   btn.disabled = true;
 
   btn.innerHTML = '<span class="loading-spinner"></span> Iniciando escaneo...';
@@ -169,6 +171,7 @@ async function iniciarAuditoria() {
       body: JSON.stringify({
         email,
         dominio,
+        forzar: esReEscaneo,
       }),
     });
 
