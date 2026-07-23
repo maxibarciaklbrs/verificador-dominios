@@ -122,7 +122,7 @@ def _normalizar_issue(issue: dict) -> dict:
     }
 
 
-def escanear_sincrono(url_objetivo: str, timeout_segundos: int = 900):
+def escanear_sincrono(url_objetivo: str, timeout_segundos: int = 4500):
     """
     Lanza el scan y bloquea sondeando hasta que termine o se acabe el tiempo.
     Pensado para llamarse desde el mismo hilo de background que corre ZAP.
@@ -141,7 +141,7 @@ def escanear_sincrono(url_objetivo: str, timeout_segundos: int = 900):
         estado = obtener_estado(task_id)
         status = str(estado.get("scan_status", "")).lower()
 
-        if status == "succeeded":
+        if status in ("succeeded", "paused"):
             issues = [
                 ev.get("issue", {})
                 for ev in estado.get("issue_events", [])

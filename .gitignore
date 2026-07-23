@@ -13,9 +13,6 @@ __pycache__/
 *.txt
 !requirements.txt
 !package.json
-pendientes_verificacion.json
-registros.txt
-pagos_registrados.txt
 
 # ============================================
 # REPORTES DE ESCANEO ZAP
@@ -44,6 +41,5 @@ main_jinja2_c-errores.py
 # ============================================
 # VARIABLES DE ENTORNO
 # ============================================
-.env
 .env.local
 .env.*.local
